@@ -37,7 +37,7 @@ app.get('/user/:id', verifyCognitoToken,
     }
 
 
-    res.json({...user, username: cognitoUser?.username});
+    res.json({...user, username: cognitoUser?.username, email: cognitoUser?.attributes.email});
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -54,14 +54,8 @@ app.post('/user/:id/adventures', verifyCognitoToken,
   }
 
   try {
-    const result = await addAccessToAdventure(userId, adventureId);
-    if (result.Attributes && result.Attributes.adventures) {
-      res.json({ success: true, updated: result.Attributes });
-    } else {
-      console.warn("No adventures returned in update");
-      res.status(500).json({ error: 'Failed to add adventure' });
-    }
-    
+    await addAccessToAdventure(userId, adventureId);
+    res.json({ success: true}); 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add adventure' });

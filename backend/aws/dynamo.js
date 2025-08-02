@@ -1,5 +1,5 @@
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, GetItemCommand, UpdateItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
@@ -24,18 +24,62 @@ export async function getUnlockedContent(userEmail) {
 }
 
 export async function addAccessToAdventure(userEmail, adventureId) {
-  const command = new UpdateItemCommand({
-        TableName: process.env.UNLOCKED_CONTENT_TABLE,
-        Key: {
-          userId: { S: userEmail.trim().toLowerCase() }
+  const normalizedEmail = userEmail.trim().toLowerCase();
+
+  const userKey = {
+    userId: { S: normalizedEmail },
+  };
+
+  // Step 1: Check if user already exists
+  const getCommand = new GetItemCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: userKey,
+  });
+
+  const existing = await dynamoClient.send(getCommand);
+
+  if (!existing.Item) {
+    // Step 2: If not found, create new user
+    const putCommand = new PutItemCommand({
+      TableName: process.env.UNLOCKED_CONTENT_TABLE,
+      Item: {
+        userId: { S: normalizedEmail },
+        adventures: {
+          L: [
+            {
+              M: {
+                adventureId: { S: adventureId },
+              },
+            },
+          ],
         },
-        UpdateExpression: 'SET adventures = list_append(if_not_exists(adventures, :empty), :newItem)',
-        ExpressionAttributeValues: {
-          ':newItem': { L: [{ M: { adventureId: { S: adventureId } } }] },
-          ':empty': { L: [] }
-        },
-        ReturnValues: 'UPDATED_NEW'
-      });
-  
-      return await dynamoClient.send(command);
+        createdAt: { S: new Date().toISOString() },
+      },
+    });
+
+    return await dynamoClient.send(putCommand);
+  }
+
+  // Step 3: If user exists, update adventures list
+  const updateCommand = new UpdateItemCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: userKey,
+    UpdateExpression:
+      "SET adventures = list_append(if_not_exists(adventures, :empty), :newItem)",
+    ExpressionAttributeValues: {
+      ":newItem": {
+        L: [
+          {
+            M: {
+              adventureId: { S: adventureId },
+            },
+          },
+        ],
+      },
+      ":empty": { L: [] },
+    },
+    ReturnValues: "ALL_NEW",
+  });
+
+  return await dynamoClient.send(updateCommand);
 }

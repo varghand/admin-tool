@@ -29,6 +29,7 @@ function UserLookupPage() {
         },
       });
 
+      console.log(res.data);
       setUser(res.data);
     } catch (err) {
       if (err.response?.status === 404) {
@@ -48,7 +49,7 @@ function UserLookupPage() {
       const session = await fetchAuthSession();
       const token = session.tokens.idToken;
       await axios.post(
-        `${baseUrl}/user/${user.userId}/adventures`,
+        `${baseUrl}/user/${user.email}/adventures`,
         { adventureId: newAdventure },
         {
           headers: {
@@ -103,7 +104,7 @@ function UserLookupPage() {
             <strong>Username:</strong> {user.username}
           </p>
           <p>
-            <strong>Email:</strong> {user.userId}
+            <strong>Email:</strong> {user.email}
           </p>
 
           {user.access && (
