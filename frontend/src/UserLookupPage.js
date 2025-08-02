@@ -1,12 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
-
 import { fetchAuthSession } from "@aws-amplify/auth";
 
-function UserLookupPage() {
-  const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
-  const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
+const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
+const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
+function UserLookupPage() {
   const [newAdventure, setNewAdventure] = useState("");
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState(null);
@@ -56,7 +55,7 @@ function UserLookupPage() {
           },
         }
       );
-      fetchUser(); // refresh user data
+      fetchUser();
       setNewAdventure("");
     } catch (err) {
       console.error(err);
@@ -64,138 +63,107 @@ function UserLookupPage() {
     }
   };
 
-  const ownedAdventureIds = new Set(
-    user?.adventures?.map((a) => a.adventureId) || []
-  );
+  const ownedAdventureIds = new Set(user?.adventures?.map((a) => a.adventureId) || []);
   const availableAdventures = adventureOptions.filter(
     (adv) => !ownedAdventureIds.has(adv)
   );
 
   return (
-      <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold mb-4">Sound Realms Admin Tool</h1>
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            className="border p-2 rounded w-64"
-            placeholder="Enter username or email"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                fetchUser();
-              }
-            }}
-            disabled={loading}
-          />
+    <div className="max-w-3xl mx-auto space-y-6">
+      <h1 className="text-3xl font-bold mb-4">User Lookup</h1>
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          className="border border-gray-400 p-2 rounded w-full max-w-md"
+          placeholder="Enter username or email"
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") fetchUser();
+          }}
+          disabled={loading}
+        />
+        <button
+          onClick={fetchUser}
+          className="bg-[#007582] text-white px-4 py-2 rounded hover:bg-[#7BB5B1] disabled:bg-[#CECFCF]"
+          disabled={loading || !userId}
+        >
+          {loading ? "Loading..." : "Lookup"}
+        </button>
+      </div>
 
-          <button
-            onClick={fetchUser}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
-            disabled={loading || !userId}
-          >
-            {loading ? (
-              <svg
-                className="animate-spin h-5 w-5 mx-auto text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
+      {error && <p className="text-red-600">{error}</p>}
+
+      {user && (
+        <div className="bg-white rounded shadow p-6 space-y-4">
+          <p>
+            <strong>Username:</strong> {user.username}
+          </p>
+          <p>
+            <strong>Email:</strong> {user.userId}
+          </p>
+
+          {user.access && (
+            <div>
+              <strong>Special Access:</strong>
+              <ul className="list-disc list-inside">
+                {user.access.map((a, i) => (
+                  <li key={i}>{a.specialAccess}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {user.adventures && (
+            <div>
+              <strong>Adventures:</strong>
+              <ul className="list-disc list-inside">
+                {user.adventures.map((adv, i) => (
+                  <li key={i}>{adv.adventureId}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {user.specialItems && (
+            <div>
+              <strong>Special Items:</strong>
+              <ul className="list-disc list-inside">
+                {user.specialItems.map((item, i) => (
+                  <li key={i}>{item.itemId}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-gray-300">
+            <label className="font-semibold">Add Adventure:</label>
+            <div className="flex items-center gap-2 mt-2">
+              <select
+                value={newAdventure}
+                onChange={(e) => setNewAdventure(e.target.value)}
+                className="border border-gray-400 p-2 rounded"
+                disabled={loading}
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                ></path>
-              </svg>
-            ) : (
-              "Lookup"
-            )}
-          </button>
-        </div>
-        {error && <p className="text-red-500">{error}</p>}
-        {!loading && user && (
-          <div className="bg-white p-4 rounded shadow w-full max-w-lg space-y-2">
-            <p>
-              <strong>Username:</strong> {user.username}
-            </p>
-
-            <p>
-              <strong>Email:</strong> {user.userId}
-            </p>
-
-            {user.access && (
-              <div>
-                <strong>Special Access:</strong>
-                <ul className="list-disc list-inside">
-                  {user.access.map((a, i) => (
-                    <li key={i}>{a.specialAccess}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {user.adventures && (
-              <div>
-                <strong>Adventures:</strong>
-                <ul className="list-disc list-inside">
-                  {user.adventures.map((adv, i) => (
-                    <li key={i}>{adv.adventureId}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {user.specialItems && (
-              <div>
-                <strong>Special Items:</strong>
-                <ul className="list-disc list-inside">
-                  {user.specialItems.map((item, i) => (
-                    <li key={i}>{item.itemId}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <br/>
-            <hr/>
-            <br/>
-
-            <div className="mt-4">
-              <label className="font-semibold">Add Adventure:</label>
-              <div className="flex items-center gap-2 mt-1">
-                <select
-                  value={newAdventure}
-                  onChange={(e) => setNewAdventure(e.target.value)}
-                  className="border p-2 rounded"
-                  disabled={loading}
-                >
-                  <option value="">Select adventure</option>
-                  {availableAdventures.map((adv) => (
-                    <option key={adv} value={adv}>
-                      {adv}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={addAdventure}
-                  disabled={!newAdventure || loading}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-green-300"
-                >
-                  Add
-                </button>
-              </div>
+                <option value="">Select adventure</option>
+                {availableAdventures.map((adv) => (
+                  <option key={adv} value={adv}>
+                    {adv}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={addAdventure}
+                disabled={!newAdventure || loading}
+                className="bg-[#007582] text-white px-4 py-2 rounded hover:bg-[#7BB5B1] disabled:bg-[#CECFCF]"
+              >
+                Add
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
   );
 }
 
