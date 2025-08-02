@@ -1,20 +1,17 @@
-name: Deploy to Heroku
+name: Deploy Backend to Heroku
 
 on:
   push:
     branches:
-      - master
+      - master 
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./backend
-
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -22,20 +19,27 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
+        working-directory: ./backend
         run: npm install
 
       - name: Build (if needed)
+        working-directory: ./backend
         run: npm run build || echo "No build step"
 
-      - name: Login to Heroku Container Registry
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      - name: Install Heroku CLI
         run: |
-          echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+          curl https://cli-assets.heroku.com/install.sh | sh
 
-      - name: Deploy to Heroku via Git
+      - name: Authenticate with Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku git:remote --app your-app-name
-          git push heroku main --force
+          echo $HEROKU_API_KEY | heroku auth:token
+          heroku git:remote --app sr-admin-backend
+
+      - name: Deploy backend (subtree push)
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          git fetch
+          git subtree push --prefix backend https://heroku:$HEROKU_API_KEY@git.heroku.com/sr-admin-backend.git master
