@@ -1,8 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const { unmarshall } = require('@aws-sdk/util-dynamodb');
-const { DynamoDBClient, GetItemCommand, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import dotenv from 'dotenv';
+dotenv.config();
+
+import { verifyCognitoToken } from './middleware/authentication.js';
+import { checkAdminAccess } from './middleware/authorization.js';
 
 const app = express();
 app.use(cors());
@@ -10,7 +14,8 @@ app.use(express.json());
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
-app.get('/user/:id', async (req, res) => {
+app.get('/user/:id', verifyCognitoToken,
+  checkAdminAccess, async (req, res) => {
   const userId = req.params.id;
 
   try {
@@ -37,7 +42,8 @@ app.get('/user/:id', async (req, res) => {
   }
 });
 
-app.post('/user/:id/adventures', async (req, res) => {
+app.post('/user/:id/adventures', verifyCognitoToken,
+  checkAdminAccess, async (req, res) => {
   const userId = req.params.id;
   const { adventureId } = req.body;
 

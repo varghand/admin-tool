@@ -4,12 +4,13 @@ This is a customer support tool for viewing and editing user access.
 
 ## Setup
 
-Create `backend/.env`:
+Create `backend/.env` (values for dev environment):
 
     AWS_REGION=eu-north-1
     AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY
     AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
     UNLOCKED_CONTENT_TABLE='unlocked-content-table-dev'
+    USER_POOL_ID=eu-north-1_wScBt5dG1
 
 Install backend dependencies:
 
