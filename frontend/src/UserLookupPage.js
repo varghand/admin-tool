@@ -185,19 +185,21 @@ function UserLookupPage() {
 
             <label className="font-semibold">Add Adventure:</label>
             <div className="flex items-center gap-2 mt-2">
-              <select
-                value={newAdventure}
-                onChange={(e) => setNewAdventure(e.target.value)}
-                className="border border-gray-400 p-2 rounded"
-                disabled={loading}
-              >
-                <option value="">Select adventure</option>
-                {availableAdventures.map((adv) => (
-                  <option key={adv} value={adv}>
-                    {getReadableFormat(adv)}
-                  </option>
-                ))}
-              </select>
+              <div className="flex">
+                <select
+                  value={newAdventure}
+                  onChange={(e) => setNewAdventure(e.target.value)}
+                  className="w-64 md:w-80 border border-gray-400 p-2 rounded"
+                  disabled={loading}
+                >
+                  <option value="">Select adventure</option>
+                  {availableAdventures.map((adv) => (
+                    <option key={adv} value={adv}>
+                      {getReadableFormat(adv)}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 onClick={addAdventure}
                 disabled={!newAdventure || loading}
@@ -207,22 +209,25 @@ function UserLookupPage() {
               </button>
             </div>
           </div>
+
           <div className="pt-4">
             <label className="font-semibold">Add Special Item:</label>
             <div className="flex items-center gap-2 mt-2">
-              <select
-                value={newSpecialItem}
-                onChange={(e) => setNewSpecialItem(e.target.value)}
-                className="border border-gray-400 p-2 rounded"
-                disabled={loading}
-              >
-                <option value="">Select item</option>
-                {availableItems.map((item) => (
-                  <option key={item} value={item}>
-                    {getReadableFormat(item)}
-                  </option>
-                ))}
-              </select>
+              <div className="flex">
+                <select
+                  value={newSpecialItem}
+                  onChange={(e) => setNewSpecialItem(e.target.value)}
+                  className="w-64 md:w-80 border border-gray-400 p-2 rounded"
+                  disabled={loading}
+                >
+                  <option value="">Select item</option>
+                  {availableItems.map((item) => (
+                    <option key={item} value={item}>
+                      {getReadableFormat(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 onClick={addSpecialItem}
                 disabled={!newSpecialItem || loading}
