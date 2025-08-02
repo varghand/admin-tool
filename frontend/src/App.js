@@ -20,7 +20,7 @@ function App() {
 
   return (
     <Authenticator signUpAttributes={[]} variation="modal" hideSignUp={true}>
-      <div className="flex min-h-screen bg-brand-gray-light text-black">
+      <div className="flex min-h-screen bg-brand-gray-light text-black font-sans">
         <aside className="w-64 bg-brand-purple-dark text-white flex flex-col p-4">
           <img
             src="/3_SR_BrandLogo_White_TM.png"
