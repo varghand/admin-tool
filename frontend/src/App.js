@@ -5,8 +5,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 
 function App() {
   const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
-  // const baseUrl = 'http://localhost:3001';
-  const baseUrl = "https://sr-admin-backend-b76118fcd0f9.herokuapp.com";
+  const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
   const [newAdventure, setNewAdventure] = useState("");
   const [userId, setUserId] = useState("");
