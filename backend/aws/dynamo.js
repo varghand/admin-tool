@@ -8,7 +8,7 @@ export async function getUnlockedContent(userEmail) {
     const command = new GetItemCommand({
       TableName: process.env.UNLOCKED_CONTENT_TABLE,
       Key: {
-        userId: { S: userEmail.trim() },
+        userId: { S: userEmail.trim().toLowerCase() },
       },
     });
 

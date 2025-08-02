@@ -7,7 +7,7 @@ dotenv.config();
 
 import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
-import { getCognitoUser, getCognitoUserByUsername } from "./aws/cognito.js";
+import { getCognitoUserByEmail, getCognitoUserByUsername } from "./aws/cognito.js";
 import { getUnlockedContent } from './aws/dynamo.js';
 
 
@@ -25,7 +25,7 @@ app.get('/user/:id', verifyCognitoToken,
     var user;
     var cognitoUser;
     if (userId.includes("@")) {
-      cognitoUser = await getCognitoUser(userId);
+      cognitoUser = await getCognitoUserByEmail(userId);
       user = await getUnlockedContent(userId);
     } else {
       cognitoUser = await getCognitoUserByUsername(userId);

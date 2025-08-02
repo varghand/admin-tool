@@ -13,11 +13,11 @@ const cognitoClient = new CognitoIdentityProviderClient({
  * @param {string} email - Cognito username (usually email).
  * @returns {Promise<object|null>} Cognito user object or null if not found.
  */
-export async function getCognitoUser(email) {
+export async function getCognitoUserByEmail(email) {
   try {
     const command = new AdminGetUserCommand({
       UserPoolId: process.env.USER_POOL_ID,
-      Username: email,
+      Username: email.trim().toLowerCase(),
     });
 
     const response = await cognitoClient.send(command);
