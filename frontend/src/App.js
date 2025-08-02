@@ -80,7 +80,7 @@ function App() {
           <input
             type="text"
             className="border p-2 rounded w-64"
-            placeholder="Enter user email..."
+            placeholder="Enter username or email"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             onKeyDown={(e) => {

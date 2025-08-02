@@ -30,10 +30,10 @@ Install frontend dependencies:
 
 ## To Run the App
 
-Start Backend:
+Start Backend with hot reloading:
 
     cd backend
-    node server.js
+    npm run dev
 
 Start Frontend:
 

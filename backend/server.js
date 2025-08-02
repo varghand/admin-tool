@@ -7,7 +7,8 @@ dotenv.config();
 
 import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
-import { getCognitoUser } from "./endpoints/cognito.js";
+import { getCognitoUser, getCognitoUserByUsername } from "./aws/cognito.js";
+import { getUnlockedContent } from './aws/dynamo.js';
 
 
 const app = express();
@@ -21,25 +22,25 @@ app.get('/user/:id', verifyCognitoToken,
   const userId = req.params.id;
 
   try {
-    const command = new GetItemCommand({
-      TableName: process.env.UNLOCKED_CONTENT_TABLE,
-      Key: {
-        userId: { S: userId },
-      },
-    });
+    var user;
+    var cognitoUser;
+    if (userId.includes("@")) {
+      cognitoUser = await getCognitoUser(userId);
+      user = await getUnlockedContent(userId);
+    } else {
+      cognitoUser = await getCognitoUserByUsername(userId);
+      console.log(cognitoUser.attributes.email)
+      user = await getUnlockedContent(cognitoUser.attributes.email);
+      console.log(user)
+    }
+    
 
-    const result = await dynamoClient.send(command);
-
-    const cognitoUser = await getCognitoUser(userId);
-    console.log(cognitoUser);
-
-    if (!result.Item && !cognitoUser) {
+    if (!user && !cognitoUser) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const user = unmarshall(result.Item);
 
-    res.json({...user, username: cognitoUser.username});
+    res.json({...user, username: cognitoUser?.username});
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
