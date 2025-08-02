@@ -40,6 +40,10 @@ function App() {
     }
   };
 
+  // Filter out adventures the user already has
+  const ownedAdventureIds = new Set(user?.adventures?.map((a) => a.adventureId) || []);
+  const availableAdventures = adventureOptions.filter((adv) => !ownedAdventureIds.has(adv));
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center justify-center">
       <h1 className="text-3xl font-bold mb-4">Sound Realms Admin Tool</h1>
@@ -107,7 +111,7 @@ function App() {
                 className="border p-2 rounded"
               >
                 <option value="">Select adventure</option>
-                {adventureOptions.map((adv) => (
+                {availableAdventures.map((adv) => (
                   <option key={adv} value={adv}>
                     {adv}
                   </option>
@@ -115,7 +119,8 @@ function App() {
               </select>
               <button
                 onClick={addAdventure}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                disabled={!newAdventure}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-green-300"
               >
                 Add
               </button>
