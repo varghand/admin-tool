@@ -22,3 +22,20 @@ export async function getUnlockedContent(userEmail) {
     return null;
   }
 }
+
+export async function addAccessToAdventure(userEmail, adventureId) {
+  const command = new UpdateItemCommand({
+        TableName: process.env.UNLOCKED_CONTENT_TABLE,
+        Key: {
+          userId: { S: userEmail.trim().toLowerCase() }
+        },
+        UpdateExpression: 'SET adventures = list_append(if_not_exists(adventures, :empty), :newItem)',
+        ExpressionAttributeValues: {
+          ':newItem': { L: [{ M: { adventureId: { S: adventureId } } }] },
+          ':empty': { L: [] }
+        },
+        ReturnValues: 'UPDATED_NEW'
+      });
+  
+      return await dynamoClient.send(command);
+}

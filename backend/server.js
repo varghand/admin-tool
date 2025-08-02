@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { DynamoDBClient, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
 import dotenv from 'dotenv';
 dotenv.config();
 
 import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
 import { getCognitoUserByEmail, getCognitoUserByUsername } from "./aws/cognito.js";
-import { getUnlockedContent } from './aws/dynamo.js';
+import { addAccessToAdventure, getUnlockedContent } from './aws/dynamo.js';
 
 
 const app = express();
@@ -29,11 +29,8 @@ app.get('/user/:id', verifyCognitoToken,
       user = await getUnlockedContent(userId);
     } else {
       cognitoUser = await getCognitoUserByUsername(userId);
-      console.log(cognitoUser.attributes.email)
       user = await getUnlockedContent(cognitoUser.attributes.email);
-      console.log(user)
     }
-    
 
     if (!user && !cognitoUser) {
       return res.status(404).json({ error: 'User not found' });
@@ -57,21 +54,14 @@ app.post('/user/:id/adventures', verifyCognitoToken,
   }
 
   try {
-    const command = new UpdateItemCommand({
-      TableName: process.env.UNLOCKED_CONTENT_TABLE,
-      Key: {
-        userId: { S: userId }
-      },
-      UpdateExpression: 'SET adventures = list_append(if_not_exists(adventures, :empty), :newItem)',
-      ExpressionAttributeValues: {
-        ':newItem': { L: [{ M: { adventureId: { S: adventureId } } }] },
-        ':empty': { L: [] }
-      },
-      ReturnValues: 'UPDATED_NEW'
-    });
-
-    const result = await dynamoClient.send(command);
-    res.json({ success: true, updated: result.Attributes });
+    const result = await addAccessToAdventure(userId, adventureId);
+    if (result.Attributes && result.Attributes.adventures) {
+      res.json({ success: true, updated: result.Attributes });
+    } else {
+      console.warn("No adventures returned in update");
+      res.status(500).json({ error: 'Failed to add adventure' });
+    }
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add adventure' });
