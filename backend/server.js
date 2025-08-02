@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -78,6 +78,26 @@ app.post('/user/:id/adventures', verifyCognitoToken,
   }
 });
 
+app.get('/users/by-adventure/:adventureId', verifyCognitoToken, checkAdminAccess, async (req, res) => {
+  const { adventureId } = req.params;
+
+  const command = new ScanCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    FilterExpression: 'contains(adventures, :adventure)',
+    ExpressionAttributeValues: {
+      ':adventure': { M: { adventureId: { S: adventureId } } }
+    }
+  });
+
+  try {
+    const result = await dynamoClient.send(command);
+    const users = result.Items.map(item => unmarshall(item));
+    res.json(users);
+  } catch (error) {
+    console.error('Error scanning for users by adventure:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 const PORT = process.env.PORT || 3001;
 
