@@ -3,7 +3,6 @@ import axios from "axios";
 
 import { Authenticator } from "@aws-amplify/ui-react";
 
-
 function App() {
   const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
   // const baseUrl = 'http://localhost:3001';
@@ -59,7 +58,7 @@ function App() {
   );
 
   return (
-    <Authenticator>
+    <Authenticator signUpAttributes={[]} variation="modal" hideSignUp={true}>
       <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold mb-4">Sound Realms Admin Tool</h1>
         <div className="flex gap-2 mb-4">
