@@ -22,7 +22,12 @@ function App() {
     <Authenticator signUpAttributes={[]} variation="modal" hideSignUp={true}>
       <div className="flex min-h-screen bg-brand-gray-light text-black">
         <aside className="w-64 bg-brand-purple-dark text-white flex flex-col p-4">
-          <h1 className="text-xl font-bold mb-6">Sound Realms Admin</h1>
+          <img
+            src="/3_SR_BrandLogo_White_TM.png"
+            alt="Sound Realms Logo"
+            className="w-50 mb-6 mx-auto"
+          />
+          <h1 className="text-xl font-bold mb-6">Admin Tool</h1>
           <nav className="space-y-2">
             <button
               onClick={() => setActivePage("user-lookup")}
