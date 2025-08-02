@@ -29,6 +29,9 @@ app.get('/user/:id', verifyCognitoToken,
       user = await getUnlockedContent(userId);
     } else {
       cognitoUser = await getCognitoUserByUsername(userId);
+      if (!cognitoUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
       user = await getUnlockedContent(cognitoUser.attributes.email);
     }
 
