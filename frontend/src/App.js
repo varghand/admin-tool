@@ -5,24 +5,30 @@ function App() {
   const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
 
   const [newAdventure, setNewAdventure] = useState("");
-
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const fetchUser = async () => {
+    if (!userId) return;
+
+    setLoading(true);
+    setUser(null);  // hide previous user data on every lookup
+    setError("");
+
     try {
       const res = await axios.get(`http://localhost:3001/user/${userId}`);
       setUser(res.data);
-      setError("");
     } catch (err) {
-      setUser(null);
       if (err.response?.status === 404) {
         setError("User not found");
       } else {
         setError("An error occurred");
       }
     }
+
+    setLoading(false);
   };
 
   const addAdventure = async () => {
@@ -40,7 +46,6 @@ function App() {
     }
   };
 
-  // Filter out adventures the user already has
   const ownedAdventureIds = new Set(user?.adventures?.map((a) => a.adventureId) || []);
   const availableAdventures = adventureOptions.filter((adv) => !ownedAdventureIds.has(adv));
 
@@ -54,16 +59,41 @@ function App() {
           placeholder="Enter User ID"
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
+          disabled={loading}
         />
         <button
           onClick={fetchUser}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
+          disabled={loading || !userId}
         >
-          Lookup
+          {loading ? (
+            <svg
+              className="animate-spin h-5 w-5 mx-auto text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          ) : (
+            "Lookup"
+          )}
         </button>
       </div>
       {error && <p className="text-red-500">{error}</p>}
-      {user && (
+      {!loading && user && (
         <div className="bg-white p-4 rounded shadow w-full max-w-lg space-y-2">
           <p>
             <strong>ID:</strong> {user.userId}
@@ -109,6 +139,7 @@ function App() {
                 value={newAdventure}
                 onChange={(e) => setNewAdventure(e.target.value)}
                 className="border p-2 rounded"
+                disabled={loading}
               >
                 <option value="">Select adventure</option>
                 {availableAdventures.map((adv) => (
@@ -119,7 +150,7 @@ function App() {
               </select>
               <button
                 onClick={addAdventure}
-                disabled={!newAdventure}
+                disabled={!newAdventure || loading}
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-green-300"
               >
                 Add
