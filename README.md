@@ -52,7 +52,7 @@ Create backend project:
 
 Generate AWS IAM credentials
  
-    aws iam create-access-key --user-name admin-tool-backend-user
+    aws iam create-access-key --user-name admin-tool-backend-user-prod
 
 Populate all environment variables (same as content in `.env` file), but remember to use the IAM credentials and not your own. You do this under Settings -> Config Vars on Heroku, or using the CLI.
 
@@ -63,6 +63,12 @@ Create a Heroku API key secret in your GitHub repo:
 3. Name it HEROKU_API_KEY and paste the key.
 
 From now all commits pushed to the master branch will be automatically deployed using the Github Action!
+
+### One-time setup for deploying frontend
+1. Go to https://app.netlify.com/
+2. Click “Add new site” > “Import from Git”
+3. Select your repo and the `frontend` directory
+4. Populate environment variables
 
 ## Debugging
 
