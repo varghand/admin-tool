@@ -126,6 +126,10 @@ function App() {
         {!loading && user && (
           <div className="bg-white p-4 rounded shadow w-full max-w-lg space-y-2">
             <p>
+              <strong>Username:</strong> {user.username}
+            </p>
+
+            <p>
               <strong>Email:</strong> {user.userId}
             </p>
 

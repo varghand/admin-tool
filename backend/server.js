@@ -7,6 +7,8 @@ dotenv.config();
 
 import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
+import { getCognitoUser } from "./endpoints/cognito.js";
+
 
 const app = express();
 app.use(cors());
@@ -28,14 +30,16 @@ app.get('/user/:id', verifyCognitoToken,
 
     const result = await dynamoClient.send(command);
 
-    if (!result.Item) {
+    const cognitoUser = await getCognitoUser(userId);
+    console.log(cognitoUser);
+
+    if (!result.Item && !cognitoUser) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Convert DynamoDB item to plain JS object (handles nested arrays/objects)
     const user = unmarshall(result.Item);
 
-    res.json(user);
+    res.json({...user, username: cognitoUser.username});
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
