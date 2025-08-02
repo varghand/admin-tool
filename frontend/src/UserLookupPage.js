@@ -63,10 +63,37 @@ function UserLookupPage() {
     }
   };
 
-  const ownedAdventureIds = new Set(user?.adventures?.map((a) => a.adventureId) || []);
+  const ownedAdventureIds = new Set(
+    user?.adventures?.map((a) => a.adventureId) || []
+  );
   const availableAdventures = adventureOptions.filter(
     (adv) => !ownedAdventureIds.has(adv)
   );
+
+  const getReadableFormat = (shortForm) => {
+    switch (shortForm) {
+      case "varghand-employee":
+        return "Sound Realms Admin";
+      case "fod-pre-order":
+      case "fod":
+        return "The Fortress of Death";
+      case "fod-beta":
+        return "The Fortress of Death (Beta Access)";
+      case "fod-kickstarter":
+        return "The Fortress of Death (Kickstarter Backer)";
+      case "fist-pre-order":
+      case "fist":
+        return "F.I.S.T.";
+      case "coc_aatt_beta":
+        return "Alone Against the Tide (Beta Access)";
+      case "bundle-pre-order":
+        return "F.I.S.T. + The Fortress of Death Bundle";
+      case "fod-expansions":
+        return "The Fortress of Death: Expansion Bundle 1";
+      default:
+        return shortForm;
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -108,7 +135,7 @@ function UserLookupPage() {
               <strong>Special Access:</strong>
               <ul className="list-disc list-inside">
                 {user.access.map((a, i) => (
-                  <li key={i}>{a.specialAccess}</li>
+                  <li key={i}>{getReadableFormat(a.specialAccess)}</li>
                 ))}
               </ul>
             </div>
@@ -119,7 +146,7 @@ function UserLookupPage() {
               <strong>Adventures:</strong>
               <ul className="list-disc list-inside">
                 {user.adventures.map((adv, i) => (
-                  <li key={i}>{adv.adventureId}</li>
+                  <li key={i}>{getReadableFormat(adv.adventureId)}</li>
                 ))}
               </ul>
             </div>
@@ -148,7 +175,7 @@ function UserLookupPage() {
                 <option value="">Select adventure</option>
                 {availableAdventures.map((adv) => (
                   <option key={adv} value={adv}>
-                    {adv}
+                    {getReadableFormat(adv)}
                   </option>
                 ))}
               </select>
