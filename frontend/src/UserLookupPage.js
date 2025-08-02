@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
+import { getReadableFormat } from "./helpers/readableFormat";
 
 const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -69,31 +70,6 @@ function UserLookupPage() {
   const availableAdventures = adventureOptions.filter(
     (adv) => !ownedAdventureIds.has(adv)
   );
-
-  const getReadableFormat = (shortForm) => {
-    switch (shortForm) {
-      case "varghand-employee":
-        return "Sound Realms Admin";
-      case "fod-pre-order":
-      case "fod":
-        return "The Fortress of Death";
-      case "fod-beta":
-        return "The Fortress of Death (Beta Access)";
-      case "fod-kickstarter":
-        return "The Fortress of Death (Kickstarter Backer)";
-      case "fist-pre-order":
-      case "fist":
-        return "F.I.S.T.";
-      case "coc_aatt_beta":
-        return "Alone Against the Tide (Beta Access)";
-      case "bundle-pre-order":
-        return "F.I.S.T. + The Fortress of Death Bundle";
-      case "fod-expansions":
-        return "The Fortress of Death: Expansion Bundle 1";
-      default:
-        return shortForm;
-    }
-  };
 
   return (
     <div className="max-w-3xl space-y-6">

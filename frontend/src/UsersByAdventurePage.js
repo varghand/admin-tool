@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
+import { getReadableFormat } from "./helpers/readableFormat";
 
 const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -45,7 +46,7 @@ export default function UsersByAdventurePage() {
           <option value="">Select Adventure</option>
           {adventureOptions.map((adv) => (
             <option key={adv} value={adv}>
-              {adv}
+              {getReadableFormat(adv)}
             </option>
           ))}
         </select>
@@ -67,7 +68,7 @@ export default function UsersByAdventurePage() {
           <ul className="list-disc list-inside space-y-1">
             {users.map((user, index) => (
               <li key={index}>
-                <strong>{user.username}</strong> — {user.userId}
+                {user.userId}
               </li>
             ))}
           </ul>
