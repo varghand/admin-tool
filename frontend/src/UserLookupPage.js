@@ -138,7 +138,7 @@ function UserLookupPage() {
               <strong>Special Items:</strong>
               <ul className="list-disc list-inside">
                 {user.specialItems.map((item, i) => (
-                  <li key={i}>{item.itemId}</li>
+                  <li key={i}>{getReadableFormat(item.itemId)}</li>
                 ))}
               </ul>
             </div>
