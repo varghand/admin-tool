@@ -98,6 +98,10 @@ function UserLookupPage() {
 
       {error && <p className="text-red-600">{error}</p>}
 
+      {!user && (
+        <p className="text-gray-500">Username is case-sensitive, email address is not.</p>
+      )}
+
       {user && (
         <div className="bg-white rounded shadow p-6 space-y-4">
           <p>
