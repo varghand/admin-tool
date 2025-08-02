@@ -9,6 +9,7 @@ Create `backend/.env`:
     AWS_REGION=eu-north-1
     AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY
     AWS_SECRET_ACCESS_KEY=YOUR_SECRET_KEY
+    UNLOCKED_CONTENT_TABLE='unlocked-content-table-dev'
 
 Install backend dependencies:
 
@@ -33,3 +34,23 @@ Start Frontend:
     npm start
 
 Then go to http://localhost:3000 in your browser.
+
+## Deployment
+
+### Backend
+Create backend project:
+
+    heroku login
+    heroku create sr-admin-backend
+
+Generate AWS IAM credentials
+ 
+    aws iam create-access-key --user-name admin-tool-backend-user
+
+Populate all environment variables (same as content in `.env` file), but remember to use the IAM credentials and not your own. You do this under Settings -> Config Vars on Heroku, or using the CLI.
+
+Create a Heroku API key secret in your GitHub repo:
+
+1. Go to your Heroku account settings → API Key → Copy.
+2. In GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+3. Name it HEROKU_API_KEY and paste the key.
