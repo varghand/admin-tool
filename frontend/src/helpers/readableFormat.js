@@ -4,6 +4,7 @@
       case "varghand-employee":
         return "Sound Realms Admin";
       case "fod-pre-order":
+        return "The Fortress of Death (Pre-Order)"
       case "fod":
         return "The Fortress of Death";
       case "fod-beta":
@@ -11,6 +12,7 @@
       case "fod-kickstarter":
         return "The Fortress of Death (Kickstarter Backer)";
       case "fist-pre-order":
+        return "F.I.S.T. (Pre-Order)"
       case "fist":
         return "F.I.S.T.";
       case "coc_aatt_beta":
@@ -23,4 +25,3 @@
         return shortForm;
     }
   };
-  

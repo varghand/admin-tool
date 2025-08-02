@@ -3,7 +3,8 @@ import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { getReadableFormat } from "./helpers/readableFormat";
 
-const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
+const adventureOptions = ["coc_aatt_beta", "fod", "fist", "fod-kickstarter", "fod-beta", "bundle-pre-order", "fist-pre-order", "fod-pre-order", "fod-expansions"];
+
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
 export default function UsersByAdventurePage() {
