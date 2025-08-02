@@ -83,8 +83,14 @@ function App() {
             placeholder="Enter User ID"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                fetchUser();
+              }
+            }}
             disabled={loading}
           />
+
           <button
             onClick={fetchUser}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
