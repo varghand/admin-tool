@@ -38,7 +38,7 @@ function App() {
                 activePage === "users-by-adventure" ? "bg-brand-purple" : ""
               }`}
             >
-              Users by Adventure
+              List Users by Adventure
             </button>
           </nav>
         </aside>

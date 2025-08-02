@@ -35,8 +35,7 @@ export default function UsersByAdventurePage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">Users by Adventure</h2>
-
+      <h1 className="text-2xl font-semibold">List Users by Adventure</h1>
       <div className="flex gap-2">
         <select
           value={selectedAdventure}
