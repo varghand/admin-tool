@@ -85,7 +85,7 @@ function UserLookupPage() {
         />
         <button
           onClick={fetchUser}
-          className="bg-[#007582] text-white px-4 py-2 rounded hover:bg-[#7BB5B1] disabled:bg-[#CECFCF]"
+          className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
           disabled={loading || !userId}
         >
           {loading ? "Loading..." : "Lookup"}
@@ -155,7 +155,7 @@ function UserLookupPage() {
               <button
                 onClick={addAdventure}
                 disabled={!newAdventure || loading}
-                className="bg-[#007582] text-white px-4 py-2 rounded hover:bg-[#7BB5B1] disabled:bg-[#CECFCF]"
+                className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
               >
                 Add
               </button>
