@@ -37,7 +37,7 @@ Then go to http://localhost:3000 in your browser.
 
 ## Deployment
 
-### Backend
+### One-time setup for deploying backend
 Create backend project:
 
     heroku login
@@ -54,3 +54,11 @@ Create a Heroku API key secret in your GitHub repo:
 1. Go to your Heroku account settings → API Key → Copy.
 2. In GitHub repo → Settings → Secrets and variables → Actions → New repository secret
 3. Name it HEROKU_API_KEY and paste the key.
+
+From now all commits pushed to the master branch will be automatically deployed using the Github Action!
+
+## Debugging
+
+Follow backend logs in real-time:
+
+    heroku logs --tail -a sr-admin-backend

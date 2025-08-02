@@ -37,9 +37,10 @@ jobs:
           echo $HEROKU_API_KEY | heroku auth:token
           heroku git:remote --app sr-admin-backend
 
-      - name: Deploy backend (subtree push)
+      - name: Deploy backend (force push from subtree)
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           git fetch
-          git subtree push --prefix backend https://heroku:$HEROKU_API_KEY@git.heroku.com/sr-admin-backend.git master
+          git subtree split --prefix backend -b heroku-deploy
+          git push -f https://heroku:$HEROKU_API_KEY@git.heroku.com/sr-admin-backend.git heroku-deploy:master
