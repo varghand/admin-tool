@@ -3,7 +3,17 @@ import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { getReadableFormat } from "./helpers/readableFormat";
 
-const adventureOptions = ["coc_aatt_beta", "fod", "fist", "fod-kickstarter", "fod-beta", "bundle-pre-order", "fist-pre-order", "fod-pre-order", "fod-expansions"];
+const adventureOptions = [
+  "coc_aatt_beta",
+  "fod",
+  "fist",
+  "fod-kickstarter",
+  "fod-beta",
+  "bundle-pre-order",
+  "fist-pre-order",
+  "fod-pre-order",
+  "fod-expansions",
+];
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
@@ -20,11 +30,14 @@ export default function UsersByAdventurePage() {
       const session = await fetchAuthSession();
       const token = session.tokens.idToken;
 
-      const res = await axios.get(`${baseUrl}/users/by-adventure/${selectedAdventure}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        `${baseUrl}/users/by-adventure/${selectedAdventure}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setUsers(res.data);
     } catch (err) {
@@ -44,11 +57,15 @@ export default function UsersByAdventurePage() {
           className="border p-2 rounded"
         >
           <option value="">Select Adventure</option>
-          {adventureOptions.map((adv) => (
-            <option key={adv} value={adv}>
-              {getReadableFormat(adv)}
-            </option>
-          ))}
+          {adventureOptions
+            .sort((a, b) =>
+              getReadableFormat(a).localeCompare(getReadableFormat(b))
+            )
+            .map((adv) => (
+              <option key={adv} value={adv}>
+                {getReadableFormat(adv)}
+              </option>
+            ))}
         </select>
 
         <button
@@ -64,12 +81,12 @@ export default function UsersByAdventurePage() {
 
       {users.length > 0 && (
         <div className="bg-white rounded shadow p-4">
-          <h3 className="text-lg font-semibold mb-2">Found {users.length} users</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Found {users.length} users
+          </h3>
           <ul className="list-disc list-inside space-y-1">
             {users.map((user, index) => (
-              <li key={index}>
-                {user.userId}
-              </li>
+              <li key={index}>{user.userId}</li>
             ))}
           </ul>
         </div>
