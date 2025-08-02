@@ -17,7 +17,7 @@ function App() {
         </aside>
 
         <main className="flex-1 p-8 overflow-auto">
-          <UsersByAdventurePage />
+          <UserLookupPage />
         </main>
       </div>
     </Authenticator>

@@ -96,7 +96,7 @@ function UserLookupPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl space-y-6">
       <h1 className="text-3xl font-bold mb-4">User Lookup</h1>
       <div className="flex gap-2 mb-4">
         <input
