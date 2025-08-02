@@ -3,11 +3,13 @@ import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { getReadableFormat } from "./helpers/readableFormat";
 
-const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
+const adventureOptions = ["coc_aatt_beta", "fod", "fist", "fod-expansions"];
+const itemOptions = ["potionOfLaumspur", "bandOfTheBrave"];
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
 function UserLookupPage() {
   const [newAdventure, setNewAdventure] = useState("");
+  const [newSpecialItem, setNewSpecialItem] = useState("");
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -65,12 +67,38 @@ function UserLookupPage() {
     }
   };
 
+  const addSpecialItem = async () => {
+    if (!newSpecialItem || !userId) return;
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+      await axios.post(
+        `${baseUrl}/user/${user.email}/specialItems`,
+        { itemId: newSpecialItem },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchUser();
+      setNewSpecialItem("");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add adventure");
+    }
+  };
+
   const ownedAdventureIds = new Set(
     user?.adventures?.map((a) => a.adventureId) || []
   );
   const availableAdventures = adventureOptions.filter(
     (adv) => !ownedAdventureIds.has(adv)
   );
+
+  const ownedItemIds = new Set(user?.specialItems?.map((i) => i.itemId) || []);
+  const availableItems = itemOptions.filter((item) => !ownedItemIds.has(item));
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -99,13 +127,21 @@ function UserLookupPage() {
       {error && <p className="text-red-600">{error}</p>}
 
       {!user && (
-        <p className="text-gray-500">Username is case-sensitive, email address is not.</p>
+        <p className="text-gray-500">
+          Username is case-sensitive, email address is not.
+        </p>
       )}
 
       {user && (
         <div className="bg-white rounded shadow p-6 space-y-4">
           <p>
-            <strong>Username:</strong> {user.username ?? <p className="text-red-600">This user has not yet set up their account in the Sound Realms app.</p>}
+            <strong>Username:</strong>{" "}
+            {user.username ?? (
+              <p className="text-red-600">
+                This user has not yet set up their account in the Sound Realms
+                app.
+              </p>
+            )}
           </p>
           <p>
             <strong>Email:</strong> {user.email ?? user.userId}
@@ -145,6 +181,8 @@ function UserLookupPage() {
           )}
 
           <div className="pt-4 border-t border-gray-300">
+            <h2 className="text-2xl font-bold mb-4">Add Content</h2>
+
             <label className="font-semibold">Add Adventure:</label>
             <div className="flex items-center gap-2 mt-2">
               <select
@@ -163,6 +201,31 @@ function UserLookupPage() {
               <button
                 onClick={addAdventure}
                 disabled={!newAdventure || loading}
+                className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+          <div className="pt-4">
+            <label className="font-semibold">Add Special Item:</label>
+            <div className="flex items-center gap-2 mt-2">
+              <select
+                value={newSpecialItem}
+                onChange={(e) => setNewSpecialItem(e.target.value)}
+                className="border border-gray-400 p-2 rounded"
+                disabled={loading}
+              >
+                <option value="">Select item</option>
+                {availableItems.map((item) => (
+                  <option key={item} value={item}>
+                    {getReadableFormat(item)}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={addSpecialItem}
+                disabled={!newSpecialItem || loading}
                 className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
               >
                 Add

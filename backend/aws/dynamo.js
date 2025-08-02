@@ -83,3 +83,64 @@ export async function addAccessToAdventure(userEmail, adventureId) {
 
   return await dynamoClient.send(updateCommand);
 }
+
+export async function addSpecialItem(userEmail, itemId) {
+  const normalizedEmail = userEmail.trim().toLowerCase();
+
+  const userKey = {
+    userId: { S: normalizedEmail },
+  };
+
+  // Step 1: Check if user already exists
+  const getCommand = new GetItemCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: userKey,
+  });
+
+  const existing = await dynamoClient.send(getCommand);
+
+  if (!existing.Item) {
+    // Step 2: If not found, create new user
+    const putCommand = new PutItemCommand({
+      TableName: process.env.UNLOCKED_CONTENT_TABLE,
+      Item: {
+        userId: { S: normalizedEmail },
+        specialItem: {
+          L: [
+            {
+              M: {
+                itemId: { S: itemId },
+              },
+            },
+          ],
+        },
+        createdAt: { S: new Date().toISOString() },
+      },
+    });
+
+    return await dynamoClient.send(putCommand);
+  }
+
+  // Step 3: If user exists, update adventures list
+  const updateCommand = new UpdateItemCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: userKey,
+    UpdateExpression:
+      "SET specialItems = list_append(if_not_exists(specialItems, :empty), :newItem)",
+    ExpressionAttributeValues: {
+      ":newItem": {
+        L: [
+          {
+            M: {
+              itemId: { S: itemId },
+            },
+          },
+        ],
+      },
+      ":empty": { L: [] },
+    },
+    ReturnValues: "ALL_NEW",
+  });
+
+  return await dynamoClient.send(updateCommand);
+}

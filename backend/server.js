@@ -8,7 +8,7 @@ dotenv.config();
 import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
 import { getCognitoUserByEmail, getCognitoUserByUsername } from "./aws/cognito.js";
-import { addAccessToAdventure, getUnlockedContent } from './aws/dynamo.js';
+import { addAccessToAdventure, getUnlockedContent, addSpecialItem } from './aws/dynamo.js';
 
 
 const app = express();
@@ -58,6 +58,24 @@ app.post('/user/:id/adventures', verifyCognitoToken,
 
   try {
     await addAccessToAdventure(userId, adventureId);
+    res.json({ success: true}); 
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add adventure' });
+  }
+});
+
+app.post('/user/:id/specialItems', verifyCognitoToken,
+  checkAdminAccess, async (req, res) => {
+  const userId = req.params.id;
+  const { itemId } = req.body;
+
+  if (!itemId) {
+    return res.status(400).json({ error: 'itemId is required' });
+  }
+
+  try {
+    await addSpecialItem(userId, itemId);
     res.json({ success: true}); 
   } catch (err) {
     console.error(err);

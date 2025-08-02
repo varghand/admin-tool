@@ -22,7 +22,7 @@ export const getReadableFormat = (shortForm) => {
       return "The Fortress of Death: Expansion Bundle 1";
     case "bandOfTheBrave":
       return "Band of the Brave (FoD item)";
-    case "potionOfLamuspur":
+    case "potionOfLaumspur":
       return "Potion of Laumspur (FoD item)";
     case "ukge_crucifix":
       return "Dracula Crucifix (UKGE)";
