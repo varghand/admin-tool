@@ -14,7 +14,7 @@ app.get('/user/:id', async (req, res) => {
 
   try {
     const command = new GetItemCommand({
-      TableName: 'Users',
+      TableName: 'unlocked-content-table-prod',
       Key: {
         userId: { S: userId },
       },
