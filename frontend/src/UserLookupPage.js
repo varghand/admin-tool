@@ -48,7 +48,7 @@ function UserLookupPage() {
       const session = await fetchAuthSession();
       const token = session.tokens.idToken;
       await axios.post(
-        `${baseUrl}/user/${userId}/adventures`,
+        `${baseUrl}/user/${user.userId}/adventures`,
         { adventureId: newAdventure },
         {
           headers: {
