@@ -105,10 +105,10 @@ function UserLookupPage() {
       {user && (
         <div className="bg-white rounded shadow p-6 space-y-4">
           <p>
-            <strong>Username:</strong> {user.username}
+            <strong>Username:</strong> {user.username ?? <p className="text-red-600">This user has not yet set up their account in the Sound Realms app.</p>}
           </p>
           <p>
-            <strong>Email:</strong> {user.email}
+            <strong>Email:</strong> {user.email ?? user.userId}
           </p>
 
           {user.access && (
