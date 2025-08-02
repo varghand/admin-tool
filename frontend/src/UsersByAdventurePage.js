@@ -13,7 +13,7 @@ export default function UsersByAdventurePage() {
 
   const fetchUsers = async () => {
     if (!selectedAdventure) return;
-
+    setUsers([]);
     setLoading(true);
     try {
       const session = await fetchAuthSession();
