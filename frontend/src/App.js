@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-
 import { Authenticator } from "@aws-amplify/ui-react";
+
+import { fetchAuthSession } from "@aws-amplify/auth";
 
 function App() {
   const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
@@ -17,11 +18,18 @@ function App() {
     if (!userId) return;
 
     setLoading(true);
-    setUser(null); // hide previous user data on every lookup
+    setUser(null);
     setError("");
 
     try {
-      const res = await axios.get(`${baseUrl}/user/${userId}`);
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+      const res = await axios.get(`${baseUrl}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       setUser(res.data);
     } catch (err) {
       if (err.response?.status === 404) {
@@ -38,9 +46,17 @@ function App() {
     if (!newAdventure || !userId) return;
 
     try {
-      await axios.post(`${baseUrl}/user/${userId}/adventures`, {
-        adventureId: newAdventure,
-      });
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+      await axios.post(
+        `${baseUrl}/user/${userId}/adventures`,
+        { adventureId: newAdventure },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       fetchUser(); // refresh user data
       setNewAdventure("");
     } catch (err) {
