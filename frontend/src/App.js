@@ -2,6 +2,10 @@ import { useState } from "react";
 import axios from "axios";
 
 function App() {
+  const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
+
+  const [newAdventure, setNewAdventure] = useState("");
+
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -18,6 +22,21 @@ function App() {
       } else {
         setError("An error occurred");
       }
+    }
+  };
+
+  const addAdventure = async () => {
+    if (!newAdventure || !userId) return;
+
+    try {
+      await axios.post(`http://localhost:3001/user/${userId}/adventures`, {
+        adventureId: newAdventure,
+      });
+      fetchUser(); // refresh user data
+      setNewAdventure("");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add adventure");
     }
   };
 
@@ -78,6 +97,30 @@ function App() {
               </ul>
             </div>
           )}
+
+          <div className="mt-4">
+            <label className="font-semibold">Add Adventure:</label>
+            <div className="flex items-center gap-2 mt-1">
+              <select
+                value={newAdventure}
+                onChange={(e) => setNewAdventure(e.target.value)}
+                className="border p-2 rounded"
+              >
+                <option value="">Select adventure</option>
+                {adventureOptions.map((adv) => (
+                  <option key={adv} value={adv}>
+                    {adv}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={addAdventure}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Add
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

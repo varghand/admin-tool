@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { unmarshall } = require('@aws-sdk/util-dynamodb');
-const { DynamoDBClient, GetItemCommand } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBClient, GetItemCommand, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
 require('dotenv').config();
 
 const app = express();
@@ -15,7 +15,7 @@ app.get('/user/:id', async (req, res) => {
 
   try {
     const command = new GetItemCommand({
-      TableName: 'unlocked-content-table-prod',
+      TableName: process.env.UNLOCKED_CONTENT_TABLE,
       Key: {
         userId: { S: userId },
       },
@@ -36,6 +36,37 @@ app.get('/user/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+app.post('/user/:id/adventures', async (req, res) => {
+  const userId = req.params.id;
+  const { adventureId } = req.body;
+
+  if (!adventureId) {
+    return res.status(400).json({ error: 'adventureId is required' });
+  }
+
+  try {
+    const command = new UpdateItemCommand({
+      TableName: process.env.UNLOCKED_CONTENT_TABLE,
+      Key: {
+        userId: { S: userId }
+      },
+      UpdateExpression: 'SET adventures = list_append(if_not_exists(adventures, :empty), :newItem)',
+      ExpressionAttributeValues: {
+        ':newItem': { L: [{ M: { adventureId: { S: adventureId } } }] },
+        ':empty': { L: [] }
+      },
+      ReturnValues: 'UPDATED_NEW'
+    });
+
+    const result = await dynamoClient.send(command);
+    res.json({ success: true, updated: result.Attributes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add adventure' });
+  }
+});
+
 
 const PORT = 3001;
 app.listen(PORT, () => {
