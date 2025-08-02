@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { unmarshall } = require('@aws-sdk/util-dynamodb');
 const { DynamoDBClient, GetItemCommand } = require('@aws-sdk/client-dynamodb');
 require('dotenv').config();
 
@@ -26,12 +27,8 @@ app.get('/user/:id', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const user = {
-      userId: result.Item.userId.S,
-      name: result.Item.name?.S || '',
-      email: result.Item.email?.S || '',
-      createdAt: result.Item.createdAt?.S || '',
-    };
+    // Convert DynamoDB item to plain JS object (handles nested arrays/objects)
+    const user = unmarshall(result.Item);
 
     res.json(user);
   } catch (err) {

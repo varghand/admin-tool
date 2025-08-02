@@ -1,22 +1,22 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
 
 function App() {
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
   const [user, setUser] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const fetchUser = async () => {
     try {
       const res = await axios.get(`http://localhost:3001/user/${userId}`);
       setUser(res.data);
-      setError('');
+      setError("");
     } catch (err) {
       setUser(null);
       if (err.response?.status === 404) {
-        setError('User not found');
+        setError("User not found");
       } else {
-        setError('An error occurred');
+        setError("An error occurred");
       }
     }
   };
@@ -41,11 +41,43 @@ function App() {
       </div>
       {error && <p className="text-red-500">{error}</p>}
       {user && (
-        <div className="bg-white p-4 rounded shadow w-80">
-          <p><strong>ID:</strong> {user.userId}</p>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Created:</strong> {user.createdAt}</p>
+        <div className="bg-white p-4 rounded shadow w-full max-w-lg space-y-2">
+          <p>
+            <strong>ID:</strong> {user.userId}
+          </p>
+
+          {user.access && (
+            <div>
+              <strong>Special Access:</strong>
+              <ul className="list-disc list-inside">
+                {user.access.map((a, i) => (
+                  <li key={i}>{a.specialAccess}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {user.adventures && (
+            <div>
+              <strong>Adventures:</strong>
+              <ul className="list-disc list-inside">
+                {user.adventures.map((adv, i) => (
+                  <li key={i}>{adv.adventureId}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {user.specialItems && (
+            <div>
+              <strong>Special Items:</strong>
+              <ul className="list-disc list-inside">
+                {user.specialItems.map((item, i) => (
+                  <li key={i}>{item.itemId}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
