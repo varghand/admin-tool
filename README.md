@@ -16,6 +16,12 @@ Install backend dependencies:
     cd backend
     npm ci
 
+Create `frontend/.env` (values for dev environment):
+
+    REACT_APP_AWS_REGION=eu-north-1
+    REACT_APP_USER_POOL_ID=eu-north-1_wScBt5dG1
+    REACT_APP_USER_POOL_CLIENT_ID=hsth26nb2c4nubsn9997530vc
+
 Install frontend dependencies:
 
     cd frontend
