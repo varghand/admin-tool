@@ -3,6 +3,8 @@ import axios from "axios";
 
 function App() {
   const adventureOptions = ["coc_aatt_beta", "fod", "fist"];
+  // const baseUrl = 'http://localhost:3001';
+  const baseUrl = 'https://sr-admin-backend-b76118fcd0f9.herokuapp.com';
 
   const [newAdventure, setNewAdventure] = useState("");
   const [userId, setUserId] = useState("");
@@ -18,7 +20,7 @@ function App() {
     setError("");
 
     try {
-      const res = await axios.get(`http://localhost:3001/user/${userId}`);
+      const res = await axios.get(`${baseUrl}/user/${userId}`);
       setUser(res.data);
     } catch (err) {
       if (err.response?.status === 404) {
@@ -35,7 +37,7 @@ function App() {
     if (!newAdventure || !userId) return;
 
     try {
-      await axios.post(`http://localhost:3001/user/${userId}/adventures`, {
+      await axios.post(`${baseUrl}/user/${userId}/adventures`, {
         adventureId: newAdventure,
       });
       fetchUser(); // refresh user data
