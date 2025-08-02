@@ -80,7 +80,7 @@ function App() {
           <input
             type="text"
             className="border p-2 rounded w-64"
-            placeholder="Enter User ID"
+            placeholder="Enter user email..."
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             onKeyDown={(e) => {
@@ -126,7 +126,7 @@ function App() {
         {!loading && user && (
           <div className="bg-white p-4 rounded shadow w-full max-w-lg space-y-2">
             <p>
-              <strong>ID:</strong> {user.userId}
+              <strong>Email:</strong> {user.userId}
             </p>
 
             {user.access && (
@@ -161,6 +161,10 @@ function App() {
                 </ul>
               </div>
             )}
+
+            <br/>
+            <hr/>
+            <br/>
 
             <div className="mt-4">
               <label className="font-semibold">Add Adventure:</label>
