@@ -8,7 +8,7 @@ dotenv.config();
 import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
 import { getCognitoUserByEmail, getCognitoUserByUsername } from "./aws/cognito.js";
-import { addAccessToAdventure, getUnlockedContent, addSpecialItem } from './aws/dynamo.js';
+import { addAccessToAdventure, getUnlockedContent, addSpecialItem, createUser } from './aws/dynamo.js';
 
 
 const app = express();
@@ -44,6 +44,24 @@ app.get('/user/:id', verifyCognitoToken,
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/user/:id', verifyCognitoToken, 
+  checkAdminAccess, async (req, res) => {
+  const userId = req.params.id;
+  const { adventureId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  try {
+    await createUser(userId, adventureId);
+    res.json({ success: true}); 
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create user' });
   }
 });
 

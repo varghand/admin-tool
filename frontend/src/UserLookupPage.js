@@ -90,6 +90,28 @@ function UserLookupPage() {
     }
   };
 
+  const createUser = async () => {
+    if (!userId || !userId.includes("@")) return;
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+      await axios.post(
+        `${baseUrl}/user/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchUser();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create user");
+    }
+  };
+
   const ownedAdventureIds = new Set(
     user?.adventures?.map((a) => a.adventureId) || []
   );
@@ -125,6 +147,16 @@ function UserLookupPage() {
       </div>
 
       {error && <p className="text-red-600">{error}</p>}
+
+      {error === "User not found" && userId.includes("@") && (
+        <button
+          onClick={createUser}
+          className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
+          disabled={loading || !userId}
+        >
+          {loading ? "Loading..." : "Create user"}
+        </button>
+      )}
 
       {!user && (
         <p className="text-gray-500">
