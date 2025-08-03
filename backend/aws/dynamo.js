@@ -24,43 +24,13 @@ export async function getUnlockedContent(userEmail) {
 }
 
 export async function addAccessToAdventure(userEmail, adventureId) {
-  const normalizedEmail = userEmail.trim().toLowerCase();
+  await createUser(userEmail);
 
+  const normalizedEmail = userEmail.trim().toLowerCase();
   const userKey = {
     userId: { S: normalizedEmail },
   };
-
-  // Step 1: Check if user already exists
-  const getCommand = new GetItemCommand({
-    TableName: process.env.UNLOCKED_CONTENT_TABLE,
-    Key: userKey,
-  });
-
-  const existing = await dynamoClient.send(getCommand);
-
-  if (!existing.Item) {
-    // Step 2: If not found, create new user
-    const putCommand = new PutItemCommand({
-      TableName: process.env.UNLOCKED_CONTENT_TABLE,
-      Item: {
-        userId: { S: normalizedEmail },
-        adventures: {
-          L: [
-            {
-              M: {
-                adventureId: { S: adventureId },
-              },
-            },
-          ],
-        },
-        createdAt: { S: new Date().toISOString() },
-      },
-    });
-
-    return await dynamoClient.send(putCommand);
-  }
-
-  // Step 3: If user exists, update adventures list
+  
   const updateCommand = new UpdateItemCommand({
     TableName: process.env.UNLOCKED_CONTENT_TABLE,
     Key: userKey,
@@ -85,43 +55,13 @@ export async function addAccessToAdventure(userEmail, adventureId) {
 }
 
 export async function addSpecialItem(userEmail, itemId) {
-  const normalizedEmail = userEmail.trim().toLowerCase();
+  await createUser(userEmail);
 
+  const normalizedEmail = userEmail.trim().toLowerCase();
   const userKey = {
     userId: { S: normalizedEmail },
   };
 
-  // Step 1: Check if user already exists
-  const getCommand = new GetItemCommand({
-    TableName: process.env.UNLOCKED_CONTENT_TABLE,
-    Key: userKey,
-  });
-
-  const existing = await dynamoClient.send(getCommand);
-
-  if (!existing.Item) {
-    // Step 2: If not found, create new user
-    const putCommand = new PutItemCommand({
-      TableName: process.env.UNLOCKED_CONTENT_TABLE,
-      Item: {
-        userId: { S: normalizedEmail },
-        specialItem: {
-          L: [
-            {
-              M: {
-                itemId: { S: itemId },
-              },
-            },
-          ],
-        },
-        createdAt: { S: new Date().toISOString() },
-      },
-    });
-
-    return await dynamoClient.send(putCommand);
-  }
-
-  // Step 3: If user exists, update adventures list
   const updateCommand = new UpdateItemCommand({
     TableName: process.env.UNLOCKED_CONTENT_TABLE,
     Key: userKey,
@@ -143,4 +83,32 @@ export async function addSpecialItem(userEmail, itemId) {
   });
 
   return await dynamoClient.send(updateCommand);
+}
+
+export async function createUser(userEmail) {
+  const normalizedEmail = userEmail.trim().toLowerCase();
+  const userKey = {
+    userId: { S: normalizedEmail },
+  };
+
+  // Step 1: Check if user already exists
+  const getCommand = new GetItemCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: userKey,
+  });
+
+  const existing = await dynamoClient.send(getCommand);
+
+  if (!existing.Item) {
+    // Step 2: If not found, create new user
+    const putCommand = new PutItemCommand({
+      TableName: process.env.UNLOCKED_CONTENT_TABLE,
+      Item: {
+        userId: { S: normalizedEmail },
+        createdAt: { S: new Date().toISOString() },
+      },
+    });
+
+    return await dynamoClient.send(putCommand);
+  }
 }
