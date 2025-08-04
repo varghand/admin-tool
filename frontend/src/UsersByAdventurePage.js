@@ -39,7 +39,11 @@ export default function UsersByAdventurePage() {
         }
       );
 
-      setUsers(res.data);
+      const sortedUsers = res.data.sort((a, b) =>
+        a.userId.localeCompare(b.userId)
+      );
+
+      setUsers(sortedUsers);
     } catch (err) {
       console.error("Failed to fetch users:", err);
       alert("Could not fetch users.");
