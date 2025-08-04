@@ -51,7 +51,7 @@ function UserLookupPage() {
       const session = await fetchAuthSession();
       const token = session.tokens.idToken;
       await axios.post(
-        `${baseUrl}/user/${user.email}/adventures`,
+        `${baseUrl}/user/${user.email ?? userId}/adventures`,
         { adventureId: newAdventure },
         {
           headers: {
@@ -74,7 +74,7 @@ function UserLookupPage() {
       const session = await fetchAuthSession();
       const token = session.tokens.idToken;
       await axios.post(
-        `${baseUrl}/user/${user.email}/specialItems`,
+        `${baseUrl}/user/${user.email ?? userId}/specialItems`,
         { itemId: newSpecialItem },
         {
           headers: {

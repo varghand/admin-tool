@@ -74,6 +74,10 @@ app.post('/user/:id/adventures', verifyCognitoToken,
     return res.status(400).json({ error: 'adventureId is required' });
   }
 
+  if (!userId || !userId.includes("@")) {
+    return res.status(400).json({ error: 'userId must be an email address' });
+  }
+
   try {
     await addAccessToAdventure(userId, adventureId);
     res.json({ success: true}); 
