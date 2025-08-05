@@ -3,7 +3,14 @@ import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
 import { getReadableFormat } from "./helpers/readableFormat";
 
-const adventureOptions = ["coc_aatt_beta", "fod", "fist", "fod-expansions", "fod-kickstarter"];
+const adventureOptions = [
+  "coc_aatt_beta",
+  "fod",
+  "fist",
+  "fod-expansions",
+  "fod-kickstarter",
+  "fist_gnoll_demo",
+];
 const itemOptions = ["potionOfLaumspur", "bandOfTheBrave"];
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 

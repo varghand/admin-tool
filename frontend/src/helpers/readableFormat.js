@@ -28,6 +28,8 @@ export const getReadableFormat = (shortForm) => {
       return "Dracula Crucifix (UKGE)";
     case "ukge_revolver":
       return "CoC Revolver (UKGE)";
+    case "fist_gnoll_demo":
+      return "F.I.S.T. (Gnoll Cassette Demo)";
     default:
       return shortForm;
   }
