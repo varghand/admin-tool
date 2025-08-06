@@ -129,6 +129,8 @@ function getPaymentType(type) {
       return "Stripe";
     case "link":
       return "Stripe (fast checkout)";
+    case "paypal":
+      return "PayPal (through Stripe)";
     case null:
       return "Unknown";
     default:

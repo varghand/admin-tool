@@ -5,8 +5,18 @@ import { fetchAuthSession } from "@aws-amplify/auth";
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
 const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 export default function SalesReportPage() {
@@ -44,6 +54,16 @@ export default function SalesReportPage() {
     setLoading(false);
   };
 
+  const totalAmount = salesData.reduce(
+    (sum, user) => sum + parseFloat(user.amount || 0),
+    0
+  );
+
+  const totalFees = salesData.reduce(
+    (sum, user) => sum + parseFloat(user.fee || 0),
+    0
+  );
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-semibold">Sales Report</h1>
@@ -58,7 +78,9 @@ export default function SalesReportPage() {
           >
             <option value="">Select Month</option>
             {months.map((m, i) => (
-              <option key={i} value={i}>{m}</option>
+              <option key={i} value={i}>
+                {m}
+              </option>
             ))}
           </select>
         </div>
@@ -83,7 +105,7 @@ export default function SalesReportPage() {
           {loading ? "Loading..." : "Get Report"}
         </button>
       </div>
-      
+
       <p>Currently only showing sales made through Stripe</p>
 
       {salesData.length > 0 && (
@@ -110,7 +132,9 @@ export default function SalesReportPage() {
               {salesData.map((sale, i) => (
                 <tr key={i} className="border-t">
                   <td className="p-2">{i + 1}</td>
-                  <td className="p-2">{new Date(sale.created_date).toLocaleString()}</td>
+                  <td className="p-2">
+                    {new Date(sale.created_date).toLocaleString()}
+                  </td>
                   <td className="p-2">{sale.name}</td>
                   <td className="p-2">{sale.payment_source_type}</td>
                   <td className="p-2">{sale.currency}</td>
@@ -120,6 +144,13 @@ export default function SalesReportPage() {
                   <td className="p-2">{sale.products}</td>
                 </tr>
               ))}
+              <tr className="font-bold bg-gray-100">
+                <td className="p-2 border-b">{salesData.length}</td>
+                <td colSpan={4} className="p-2 border-b"></td>
+                <td className="p-2 border-b">{totalAmount.toFixed(2)}</td>
+                <td className="p-2 border-b">{totalFees.toFixed(2)}</td>
+                <td colSpan={2} className="p-2 border-b"></td>
+              </tr>
             </tbody>
           </table>
         </div>
