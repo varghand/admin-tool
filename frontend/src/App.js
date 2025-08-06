@@ -3,6 +3,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 
 import UserLookupPage from "./UserLookupPage";
 import UsersByAdventurePage from "./UsersByAdventurePage";
+import StripeSales from "./StripeSales";
 
 function App() {
   const [activePage, setActivePage] = useState("user-lookup");
@@ -13,6 +14,8 @@ function App() {
         return <UserLookupPage />;
       case "users-by-adventure":
         return <UsersByAdventurePage />;
+      case "stripe-sales":
+        return <StripeSales />;
       default:
         return null;
     }
@@ -37,6 +40,7 @@ function App() {
             >
               User Lookup
             </button>
+
             <button
               onClick={() => setActivePage("users-by-adventure")}
               className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
@@ -44,6 +48,15 @@ function App() {
               }`}
             >
               List Users by Adventure
+            </button>
+
+            <button
+              onClick={() => setActivePage("stripe-sales")}
+              className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
+                activePage === "stripe-sales" ? "bg-brand-purple" : ""
+              }`}
+            >
+              Stripe Sales
             </button>
           </nav>
         </aside>

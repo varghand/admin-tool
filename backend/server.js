@@ -9,13 +9,18 @@ import { verifyCognitoToken } from './middleware/authentication.js';
 import { checkAdminAccess } from './middleware/authorization.js';
 import { getCognitoUserByEmail, getCognitoUserByUsername } from "./aws/cognito.js";
 import { addAccessToAdventure, getUnlockedContent, addSpecialItem, createUser } from './aws/dynamo.js';
-
+import { getStripeSales } from './stripe/stripe.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 app.get('/user/:id', verifyCognitoToken,
   checkAdminAccess, async (req, res) => {
@@ -126,8 +131,19 @@ app.get('/users/by-adventure/:adventureId', verifyCognitoToken, checkAdminAccess
   }
 });
 
-const PORT = process.env.PORT || 3001;
+app.get('/sales', verifyCognitoToken, checkAdminAccess, async (req, res) => {
+  try {
+    const month = parseInt(req.query.month); // 0-based: January = 0
+    const year = parseInt(req.query.year);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    if (isNaN(month) || isNaN(year)) {
+      return res.status(400).json({ error: 'Invalid month or year provided' });
+    }
+
+    const result = await getStripeSales(month, year);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
