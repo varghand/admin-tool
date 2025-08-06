@@ -3,7 +3,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 
 import UserLookupPage from "./UserLookupPage";
 import UsersByAdventurePage from "./UsersByAdventurePage";
-import StripeSales from "./StripeSales";
+import SalesReport from "./SalesReport";
 
 function App() {
   const [activePage, setActivePage] = useState("user-lookup");
@@ -15,7 +15,7 @@ function App() {
       case "users-by-adventure":
         return <UsersByAdventurePage />;
       case "stripe-sales":
-        return <StripeSales />;
+        return <SalesReport />;
       default:
         return null;
     }
@@ -56,7 +56,7 @@ function App() {
                 activePage === "stripe-sales" ? "bg-brand-purple" : ""
               }`}
             >
-              Stripe Sales
+              Sales Report
             </button>
           </nav>
         </aside>

@@ -54,24 +54,84 @@ export async function getStripeSales(month, year) {
     }
   }
 
-  const formatted = charges
-    .filter((c) => c.paid && !c.refunded)
-    .map((charge) => {
-      const fee = charge.balance_transaction
-        ? balanceMap.get(charge.balance_transaction)?.fee || "N/A"
-        : "N/A";
+  const formatted = [];
 
-      return {
-        id: charge.id,
-        payment_source_type: charge.payment_method_details?.type || "unknown",
-        currency: charge.currency.toUpperCase(),
-        amount: (charge.amount / 100).toFixed(2),
-        fee,
-        created_date: new Date(charge.created * 1000).toISOString(),
-        name: charge.billing_details?.name || "",
-        country: charge.payment_method_details?.card?.country || charge.billing_details?.address?.country || "",
-      };
+  for (const charge of charges.filter((c) => c.paid && !c.refunded)) {
+    const fee = charge.balance_transaction
+      ? balanceMap.get(charge.balance_transaction)?.fee || "N/A"
+      : "N/A";
+
+    let productNames = [];
+
+    if (charge.invoice) {
+      try {
+        const lineItems = await stripe.invoices.listLineItems(charge.invoice);
+        const products = await Promise.all(
+          lineItems.data
+            .filter((item) => item.price?.product)
+            .map((item) => stripe.products.retrieve(item.price.product))
+        );
+        productNames = products.map((prod) => prod.name);
+      } catch {
+        productNames = ["Error fetching products"];
+      }
+    } else if (charge.payment_intent) {
+      try {
+        const sessions = await stripe.checkout.sessions.list({
+          payment_intent: charge.payment_intent,
+          limit: 1,
+        });
+
+        if (sessions.data.length > 0) {
+          const session = sessions.data[0];
+
+          const lineItems = await stripe.checkout.sessions.listLineItems(
+            session.id
+          );
+          const products = await Promise.all(
+            lineItems.data
+              .filter((item) => item.price?.product)
+              .map((item) => stripe.products.retrieve(item.price.product))
+          );
+          productNames = products.map((prod) => prod.name);
+        } else {
+          productNames = ["No products found in checkout session"];
+        }
+      } catch {
+        productNames = ["Error fetching products"];
+      }
+    } else {
+      productNames = ["No invoice or payment_intent"];
+    }
+
+    formatted.push({
+      id: charge.id,
+      payment_source_type: getPaymentType(charge.payment_method_details?.type),
+      currency: charge.currency.toUpperCase(),
+      amount: (charge.amount / 100).toFixed(2),
+      fee,
+      created_date: new Date(charge.created * 1000).toISOString(),
+      name: charge.billing_details?.name || "",
+      country:
+        charge.payment_method_details?.card?.country ||
+        charge.billing_details?.address?.country ||
+        "",
+      products: productNames.join(", "),
     });
+  }
 
-  return formatted;
+  return formatted.reverse();
+}
+
+function getPaymentType(type) {
+  switch (type) {
+    case "card":
+      return "Stripe";
+    case "link":
+      return "Stripe (fast checkout)";
+    case null:
+      return "Unknown";
+    default:
+      return type;
+  }
 }

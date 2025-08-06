@@ -83,6 +83,8 @@ export default function SalesReportPage() {
           {loading ? "Loading..." : "Get Report"}
         </button>
       </div>
+      
+      <p>Currently only showing sales made through Stripe</p>
 
       {salesData.length > 0 && (
         <div className="overflow-auto bg-white p-4 rounded shadow">
@@ -101,6 +103,7 @@ export default function SalesReportPage() {
                 <th className="p-2 border-b">Amount</th>
                 <th className="p-2 border-b">Fee</th>
                 <th className="p-2 border-b">Country</th>
+                <th className="p-2 border-b">Products</th>
               </tr>
             </thead>
             <tbody>
@@ -114,6 +117,7 @@ export default function SalesReportPage() {
                   <td className="p-2">{sale.amount}</td>
                   <td className="p-2">{sale.fee}</td>
                   <td className="p-2">{sale.country}</td>
+                  <td className="p-2">{sale.products}</td>
                 </tr>
               ))}
             </tbody>
