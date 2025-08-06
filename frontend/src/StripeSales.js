@@ -108,12 +108,12 @@ export default function SalesReportPage() {
                 <tr key={i} className="border-t">
                   <td className="p-2">{i + 1}</td>
                   <td className="p-2">{new Date(sale.created_date).toLocaleString()}</td>
-                  <td className="p-2">{sale.card_name}</td>
+                  <td className="p-2">{sale.name}</td>
                   <td className="p-2">{sale.payment_source_type}</td>
                   <td className="p-2">{sale.currency}</td>
                   <td className="p-2">{sale.amount}</td>
                   <td className="p-2">{sale.fee}</td>
-                  <td className="p-2">{sale.card_country}</td>
+                  <td className="p-2">{sale.country}</td>
                 </tr>
               ))}
             </tbody>

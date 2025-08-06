@@ -28,7 +28,6 @@ export async function getStripeSales(month, year) {
     startingAfter = response.data.at(-1)?.id;
   }
 
-  // Fetch fees from balance transactions
   const balanceMap = new Map();
 
   const balanceTxIds = charges
@@ -55,7 +54,6 @@ export async function getStripeSales(month, year) {
     }
   }
 
-  // Map charge data into the final format
   const formatted = charges
     .filter((c) => c.paid && !c.refunded)
     .map((charge) => {
@@ -70,8 +68,8 @@ export async function getStripeSales(month, year) {
         amount: (charge.amount / 100).toFixed(2),
         fee,
         created_date: new Date(charge.created * 1000).toISOString(),
-        card_name: charge.billing_details?.name || "",
-        card_country: charge.payment_method_details?.card?.country || "",
+        name: charge.billing_details?.name || "",
+        country: charge.payment_method_details?.card?.country || charge.billing_details?.address?.country || "",
       };
     });
 
