@@ -48,3 +48,39 @@ export async function countUnlocksById() {
 
   return Array.from(resultMap.values());
 }
+
+export async function getUsedCodesByUnlockId(unlockId) {
+  const usedCodes = [];
+
+  let ExclusiveStartKey = undefined;
+  do {
+    const response = await dynamoClient.send(
+      new ScanCommand({
+        TableName: process.env.ACTIVATION_CODES_TABLE,
+        FilterExpression: "#u.#id = :id AND #used = :true",
+        ExpressionAttributeNames: {
+          "#u": "unlocks",
+          "#id": "id",
+          "#used": "used",
+        },
+        ExpressionAttributeValues: {
+          ":id": { S: unlockId },
+          ":true": { BOOL: true },
+        },
+        ExclusiveStartKey,
+      })
+    );
+
+    response.Items.forEach((item) => {
+      const code = unmarshall(item);
+      usedCodes.push({
+        activationCode: code.activationCode,
+        usedBy: code.usedBy,
+      });
+    });
+
+    ExclusiveStartKey = response.LastEvaluatedKey;
+  } while (ExclusiveStartKey);
+
+  return usedCodes;
+}

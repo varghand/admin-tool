@@ -18,7 +18,7 @@ import {
   createUser,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
-import { countUnlocksById } from "./aws/activationCodes.js";
+import { countUnlocksById, getUsedCodesByUnlockId } from "./aws/activationCodes.js";
 
 const app = express();
 app.use(cors());
@@ -198,6 +198,23 @@ app.get(
   async (req, res) => {
     try {
       const result = await countUnlocksById();
+      res.json(result);
+    } catch (err) {
+      console.error("Failed to count unlocks:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+app.get(
+  "/api/activation-codes/used/:unlockId",
+  verifyCognitoToken,
+  checkAdminAccess,
+  async (req, res) => {
+    const { unlockId } = req.params;
+
+    try {
+      const result = await getUsedCodesByUnlockId(unlockId);
       res.json(result);
     } catch (err) {
       console.error("Failed to count unlocks:", err);
