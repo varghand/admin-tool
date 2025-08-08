@@ -55,7 +55,13 @@ export default function ActivationCodeStatsPage() {
         },
       });
 
-      setStats(res.data);
+      setStats(
+        res.data.sort((a, b) => {
+          const typeCompare = a.type.localeCompare(b.type);
+          if (typeCompare !== 0) return typeCompare;
+          return a.id.localeCompare(b.id);
+        })
+      );
     } catch (err) {
       console.error("Failed to fetch activation code stats:", err);
       alert("Could not load activation code statistics.");
@@ -83,7 +89,7 @@ export default function ActivationCodeStatsPage() {
                 <th className="py-2 px-4 font-semibold">Total Codes</th>
                 <th className="py-2 px-4 font-semibold">Used</th>
                 <th className="py-2 px-4 font-semibold">Unused</th>
-                <th className="px-4 py-2">Used Codes</th >
+                <th className="px-4 py-2">Used Codes</th>
               </tr>
             </thead>
             <tbody>
