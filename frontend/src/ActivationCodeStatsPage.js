@@ -33,7 +33,7 @@ export default function ActivationCodeStatsPage() {
 
         setExpanded((prev) => ({
           ...prev,
-          [unlockId]: res.data.sort((a, b) => a.usedBy.timestamp < b.usedBy.timestamp),
+          [unlockId]: res.data.sort((a, b) => new Date(a.usedBy.timestamp) < new Date(b.usedBy.timestamp)),
         }));
       } catch (err) {
         alert("Failed to load used codes");
