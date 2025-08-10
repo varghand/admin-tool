@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  Stage:
+    Description : Stage name (dev or prod)
+    Type: String
+  UserPoolId:
+    Type: String
+
+Resources:
+  SalesReportsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join [ "-", [ "admin-sales-reports", !Ref Stage ] ]
+      AttributeDefinitions:
+        - AttributeName: "yearMonth"
+          AttributeType: "S"
+        - AttributeName: "salesChannel"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "yearMonth"
+          KeyType: "HASH"
+        - AttributeName: "salesChannel"
+          KeyType: "RANGE"
+
+      ProvisionedThroughput:
+        ReadCapacityUnits: "1"
+        WriteCapacityUnits: "1"
+
+  AdminToolBackendIAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Join [ "-", [ "admin-tool-backend", !Ref Stage ] ]
+
+  AdminToolIAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: DynamoDBAccessPolicy
+      Users:
+        - !Ref AdminToolBackendIAMUser
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              - dynamodb:Scan
+            Resource:
+              !Sub
+                - arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}
+                - TableName: !Join [ "-", [ "unlocked-content-table", !Ref Stage ] ]
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              - dynamodb:Scan
+            Resource:
+              !Sub
+                - arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}
+                - TableName: !Join [ "-", [ "activation-codes", !Ref Stage ] ]
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              - dynamodb:Scan
+            Resource:
+              !Sub
+                - arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}
+                - TableName: !Join [ "-", [ "admin-sales-reports", !Ref Stage ] ]
+
+          - Effect: Allow
+            Action:
+              - cognito-idp:AdminGetUser
+            Resource:
+              !Sub
+                - arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+                - UserPoolId: !Ref UserPoolId

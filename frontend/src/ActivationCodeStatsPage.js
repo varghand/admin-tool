@@ -79,7 +79,7 @@ export default function ActivationCodeStatsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-semibold">Activation Code Stats</h1>
+      <h1 className="text-3xl font-semibold">Activation Codes</h1>
 
       {loading && <p>Loading...</p>}
 
