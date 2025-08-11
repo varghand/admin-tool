@@ -89,20 +89,18 @@ export async function getStripeSales(month, year) {
       ? balanceMap.get(charge.balance_transaction)?.fee || "N/A"
       : "N/A";
 
-    let productNames = [];
     let products = [];
 
     if (charge.invoice) {
       try {
         const lineItems = await stripe.invoices.listLineItems(charge.invoice);
-        const products = await Promise.all(
+        products = await Promise.all(
           lineItems.data
             .filter((item) => item.price?.product)
             .map((item) => stripe.products.retrieve(item.price.product))
         );
-        productNames = products.map((prod) => prod.name);
       } catch {
-        productNames = ["Error fetching products"];
+        console.log("Error fetching products");
       }
     } else if (charge.payment_intent) {
       try {
@@ -122,15 +120,14 @@ export async function getStripeSales(month, year) {
               .filter((item) => item.price?.product)
               .map((item) => stripe.products.retrieve(item.price.product))
           );
-          productNames = products.map((prod) => prod.name);
         } else {
-          productNames = ["No products found in checkout session"];
+          console.log("No products found in checkout session");
         }
       } catch {
-        productNames = ["Error fetching products"];
+        console.log("Error fetching products");
       }
     } else {
-      productNames = ["No invoice or payment_intent"];
+      console.log("No invoice or payment_intent");
     }
 
     formatted.push({

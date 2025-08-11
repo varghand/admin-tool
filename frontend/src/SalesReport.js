@@ -55,7 +55,7 @@ export default function SalesReportPage() {
   };
 
   const totalAmount = salesData.reduce(
-    (sum, user) => sum + parseFloat(user.amount || 0),
+    (sum, user) => sum + parseFloat(user.total_price || 0),
     0
   );
 
@@ -121,7 +121,6 @@ export default function SalesReportPage() {
                 <th className="p-2 border-b">Date</th>
                 <th className="p-2 border-b">Name</th>
                 <th className="p-2 border-b">Payment Source</th>
-                <th className="p-2 border-b">Currency</th>
                 <th className="p-2 border-b">Amount</th>
                 <th className="p-2 border-b">Fee</th>
                 <th className="p-2 border-b">Country</th>
@@ -137,18 +136,17 @@ export default function SalesReportPage() {
                   </td>
                   <td className="p-2">{sale.customer_name}</td>
                   <td className="p-2">{sale.payment_source}</td>
-                  <td className="p-2">{sale.currency}</td>
-                  <td className="p-2">{sale.total_price}</td>
-                  <td className="p-2">{sale.fee}</td>
+                  <td className="p-2">{sale.total_price} kr</td>
+                  <td className="p-2">-{sale.fee} kr</td>
                   <td className="p-2">{sale.country}</td>
                   <td className="p-2">{sale.products.map(product => product.title).join(" + ")}</td>
                 </tr>
               ))}
               <tr className="font-bold bg-gray-100">
                 <td className="p-2 border-b">{salesData.length}</td>
-                <td colSpan={4} className="p-2 border-b"></td>
-                <td className="p-2 border-b">{totalAmount.toFixed(2)}</td>
-                <td className="p-2 border-b">{totalFees.toFixed(2)}</td>
+                <td colSpan={3} className="p-2 border-b"></td>
+                <td className="p-2 border-b">{totalAmount.toFixed(2)} kr</td>
+                <td className="p-2 border-b">{totalFees.toFixed(2)} kr</td>
                 <td colSpan={2} className="p-2 border-b"></td>
               </tr>
             </tbody>
