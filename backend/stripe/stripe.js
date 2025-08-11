@@ -90,6 +90,7 @@ export async function getStripeSales(month, year) {
       : "N/A";
 
     let productNames = [];
+    let products = [];
 
     if (charge.invoice) {
       try {
@@ -116,7 +117,7 @@ export async function getStripeSales(month, year) {
           const lineItems = await stripe.checkout.sessions.listLineItems(
             session.id
           );
-          const products = await Promise.all(
+          products = await Promise.all(
             lineItems.data
               .filter((item) => item.price?.product)
               .map((item) => stripe.products.retrieve(item.price.product))
@@ -134,17 +135,21 @@ export async function getStripeSales(month, year) {
 
     formatted.push({
       id: charge.id,
-      payment_source_type: getPaymentType(charge.payment_method_details?.type),
+      payment_source: getPaymentType(charge.payment_method_details?.type),
       currency: charge.currency.toUpperCase(),
-      amount: (charge.amount / 100).toFixed(2),
+      total_price: (charge.amount / 100).toFixed(2),
       fee,
       created_date: new Date(charge.created * 1000).toISOString(),
-      name: charge.billing_details?.name || "",
+      customer_name: charge.billing_details?.name || "",
       country:
         charge.payment_method_details?.card?.country ||
         charge.billing_details?.address?.country ||
         "",
-      products: productNames.join(", "),
+      products: products.map((item) => ({
+        title: item.name,
+        quantity: 1,
+        id: item.metadata.sound_realms_product_id,
+      })),
     });
   }
 

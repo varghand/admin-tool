@@ -135,13 +135,13 @@ export default function SalesReportPage() {
                   <td className="p-2">
                     {new Date(sale.created_date).toLocaleString()}
                   </td>
-                  <td className="p-2">{sale.name}</td>
-                  <td className="p-2">{sale.payment_source_type}</td>
+                  <td className="p-2">{sale.customer_name}</td>
+                  <td className="p-2">{sale.payment_source}</td>
                   <td className="p-2">{sale.currency}</td>
-                  <td className="p-2">{sale.amount}</td>
+                  <td className="p-2">{sale.total_price}</td>
                   <td className="p-2">{sale.fee}</td>
                   <td className="p-2">{sale.country}</td>
-                  <td className="p-2">{sale.products}</td>
+                  <td className="p-2">{sale.products.map(product => product.title).join(" + ")}</td>
                 </tr>
               ))}
               <tr className="font-bold bg-gray-100">

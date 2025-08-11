@@ -44,12 +44,12 @@ export async function getShopifySales(month, year) {
     const formatted = allOrders.map((order) => ({
       id: order.id,
       created_date: order.created_at,
-      amount: order.total_price,
+      total_price: order.total_price,
       currency: order.currency,
-      name: `${order.customer?.first_name || ''} ${order.customer?.last_name || ''}`.trim(),
+      customer_name: `${order.customer?.first_name || ''} ${order.customer?.last_name || ''}`.trim(),
       country: order.customer?.default_address?.country || '',
-      payment_source_type: order.gateway ?? "Shopify",
-      line_items: order.line_items.map((item) => ({
+      payment_source: order.gateway ?? "Shopify",
+      products: order.line_items.map((item) => ({
         title: item.title,
         quantity: item.quantity,
         price: item.price,
