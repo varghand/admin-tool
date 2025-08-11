@@ -1,21 +1,33 @@
 import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { DynamoDBClient, PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  GetItemCommand,
+} from "@aws-sdk/client-dynamodb";
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 export async function getStripeSales(month, year) {
   const yearMonthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
-  const existing = await dynamoClient.send(
-    new GetItemCommand({
-      TableName: process.env.SALES_REPORT_TABLE,
-      Key: marshall({ yearMonth: yearMonthKey, salesChannel: "Stripe" }),
-    })
-  );
 
-  if (existing.Item) {
-    return unmarshall(existing.Item).sales;
+  const requestedDate = new Date(Date.UTC(year, month, 1));
+  const now = new Date();
+  const firstDayOfCurrentMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+  );
+  if (requestedDate < firstDayOfCurrentMonth) {
+    const existing = await dynamoClient.send(
+      new GetItemCommand({
+        TableName: process.env.SALES_REPORT_TABLE,
+        Key: marshall({ yearMonth: yearMonthKey, salesChannel: "Stripe" }),
+      })
+    );
+
+    if (existing.Item) {
+      return unmarshall(existing.Item).sales;
+    }
   }
 
   const from = new Date(Date.UTC(year, month, 1, 0, 0, 0));
@@ -136,16 +148,18 @@ export async function getStripeSales(month, year) {
     });
   }
 
-  await dynamoClient.send(
-    new PutItemCommand({
-      TableName: process.env.SALES_REPORT_TABLE,
-      Item: marshall({
-        yearMonth: yearMonthKey,
-        salesChannel: "Stripe",
-        sales: formatted,
-      }),
-    })
-  );
+  if (requestedDate < firstDayOfCurrentMonth) {
+    await dynamoClient.send(
+      new PutItemCommand({
+        TableName: process.env.SALES_REPORT_TABLE,
+        Item: marshall({
+          yearMonth: yearMonthKey,
+          salesChannel: "Stripe",
+          sales: formatted,
+        }),
+      })
+    );
+  }
 
   return formatted.reverse();
 }

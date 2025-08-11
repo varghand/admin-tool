@@ -106,7 +106,7 @@ export default function SalesReportPage() {
         </button>
       </div>
 
-      <p>Currently only showing sales made through Stripe</p>
+      <p>Currently only showing sales made through Stripe + Shopify</p>
 
       {salesData.length > 0 && (
         <div className="overflow-auto bg-white p-4 rounded shadow">

@@ -44,17 +44,21 @@ export async function getShopifySales(month, year) {
     const formatted = allOrders.map((order) => ({
       id: order.id,
       created_date: order.created_at,
-      total_price: order.total_price,
+      amount: order.total_price,
       currency: order.currency,
-      customer_name: `${order.customer?.first_name || ''} ${order.customer?.last_name || ''}`.trim(),
+      name: `${order.customer?.first_name || ''} ${order.customer?.last_name || ''}`.trim(),
       country: order.customer?.default_address?.country || '',
-      payment_gateway: order.gateway,
+      payment_source_type: order.gateway ?? "Shopify",
       line_items: order.line_items.map((item) => ({
         title: item.title,
         quantity: item.quantity,
         price: item.price,
       })),
+      fee: (order.total_price * 0.015 + 1.85).toFixed(2), // Estimated
     }));
+
+    
+    console.log(formatted)
 
     return formatted;
   } catch (error) {

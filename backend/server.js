@@ -18,6 +18,7 @@ import {
   createUser,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
+import { getShopifySales } from "./shopify/shopify.js";
 import { countUnlocksById, getUsedCodesByUnlockId } from "./aws/activationCodes.js";
 
 const app = express();
@@ -168,8 +169,9 @@ app.get("/sales", verifyCognitoToken, checkAdminAccess, async (req, res) => {
       return res.status(400).json({ error: "Invalid month or year provided" });
     }
 
-    const result = await getStripeSales(month, year);
-    res.json(result);
+    const stripeSales = await getStripeSales(month, year);
+    const shopifySales = await getShopifySales(parseInt(month), parseInt(year));
+    res.json([...stripeSales, ...shopifySales]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -187,6 +189,7 @@ app.get("/shopify-sales", async (req, res) => {
     const result = await getShopifySales(parseInt(month), parseInt(year));
     res.json(result);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Failed to fetch sales" });
   }
 });
