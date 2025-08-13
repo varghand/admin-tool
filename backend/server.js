@@ -20,6 +20,7 @@ import {
 import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
 import { countUnlocksById, getUsedCodesByUnlockId } from "./aws/activationCodes.js";
+import { triggerActiveCampaignAutomation } from "./activeCampaign/activeCampaign.js";
 
 const app = express();
 app.use(cors());
@@ -104,6 +105,9 @@ app.post(
 
     try {
       await addAccessToAdventure(userId, adventureId);
+      if (adventureId === "coc_aatt_beta") {
+        triggerActiveCampaignAutomation(userId, "aatt-beta-user")
+      }
       res.json({ success: true });
     } catch (err) {
       console.error(err);
