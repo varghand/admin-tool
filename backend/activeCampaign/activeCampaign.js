@@ -37,7 +37,8 @@ async function createContact(email) {
 }
 
 export async function triggerActiveCampaignAutomation(email, tagName) {
-  const contact = await getContactByEmail(email);
+  email = email.trim();
+  let contact = await getContactByEmail(email);
   if (!contact) {
     contact = await createContact(email);
   }
