@@ -27,9 +27,20 @@ async function getOrCreateTag(tagName) {
   return createRes.data.tag.id;
 }
 
+async function createContact(email) {
+  const res = await axios.post(
+    `${AC_API_URL}/contacts`,
+    { contact: { email } },
+    { headers: { "Api-Token": AC_API_KEY } }
+  );
+  return res.data.contact;
+}
+
 export async function triggerActiveCampaignAutomation(email, tagName) {
   const contact = await getContactByEmail(email);
-  if (!contact) throw new Error(`Contact with email ${email} not found`);
+  if (!contact) {
+    contact = await createContact(email);
+  }
 
   const tagId = await getOrCreateTag(tagName);
 
