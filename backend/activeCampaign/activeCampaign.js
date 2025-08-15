@@ -30,7 +30,12 @@ async function getOrCreateTag(tagName) {
 async function createContact(email) {
   const res = await axios.post(
     `${AC_API_URL}/contacts`,
-    { contact: { email } },
+    {
+      contact: {
+        email: email.trim(),
+        status: 1, // Set user as confirmed right away
+      },
+    },
     { headers: { "Api-Token": AC_API_KEY } }
   );
   return res.data.contact;
