@@ -57,9 +57,6 @@ export async function getShopifySales(month, year) {
       fee: (order.total_price * 0.015 + 1.85).toFixed(2), // Estimated
     }));
 
-    
-    console.log(formatted)
-
     return formatted;
   } catch (error) {
     console.error('Failed to fetch Shopify sales:', error.message);

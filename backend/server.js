@@ -21,6 +21,7 @@ import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
 import { countUnlocksById, getUsedCodesByUnlockId } from "./aws/activationCodes.js";
 import { triggerActiveCampaignAutomation } from "./activeCampaign/activeCampaign.js";
+import { getAppleIAPSales } from "./apple/apple.js";
 
 const app = express();
 app.use(cors());
@@ -229,3 +230,19 @@ app.get(
     }
   }
 );
+
+app.get("/apple-sales", verifyCognitoToken, checkAdminAccess, async (req, res) => {
+  try {
+    const { year, month } = req.query;
+
+    if (!year || !month) {
+      return res.status(400).json({ error: "Missing required query params: year, month" });
+    }
+
+    const sales = await getAppleIAPSales(parseInt(year), parseInt(month));
+    res.json({ sales });
+  } catch (err) {
+    console.error("Failed to fetch Apple IAP sales:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
