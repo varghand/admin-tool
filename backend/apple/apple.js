@@ -9,7 +9,7 @@ function generateToken() {
     {
       iss: process.env.APPLE_ISSUER_ID,
       exp: now + 1200,
-      aud: "appstoreconnect-v1"
+      aud: "appstoreconnect-v1",
     },
     process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
     {
@@ -17,8 +17,8 @@ function generateToken() {
       header: {
         alg: "ES256",
         kid: process.env.APPLE_KEY_ID,
-        typ: "JWT"
-      }
+        typ: "JWT",
+      },
     }
   );
 }
@@ -29,19 +29,28 @@ export async function getAppleIAPSales(year, month) {
   const date = `${year}-${String(month).padStart(2, "0")}`;
   const url = "https://api.appstoreconnect.apple.com/v1/salesReports";
 
-  const res = await axios.get(url, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    responseType: "arraybuffer",
-    params: {
-      "filter[frequency]": "MONTHLY",
-      "filter[reportType]": "SALES",
-      "filter[reportSubType]": "SUMMARY",
-      "filter[vendorNumber]": process.env.APPLE_VENDOR_ID,
-      "filter[reportDate]": date
+  let res;
+  try {
+    res = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: "arraybuffer",
+      params: {
+        "filter[frequency]": "MONTHLY",
+        "filter[reportType]": "SALES",
+        "filter[reportSubType]": "SUMMARY",
+        "filter[vendorNumber]": process.env.APPLE_VENDOR_ID,
+        "filter[reportDate]": date,
+      },
+    });
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      return [];
+    } else {
+      throw error;
     }
-  });
+  }
 
   const buffer = zlib.gunzipSync(res.data);
   const csv = buffer.toString("utf8");
@@ -49,7 +58,7 @@ export async function getAppleIAPSales(year, month) {
   const parsedRecords = parse(csv, {
     columns: (header) => header.map((h) => h.trim()),
     skip_empty_lines: true,
-    delimiter: '\t',
+    delimiter: "\t",
   });
 
   const formatted = parsedRecords.map((row) => ({
@@ -68,12 +77,13 @@ export async function getAppleIAPSales(year, month) {
     total_price: parseFloat(row["Customer Price"] || "0").toFixed(2),
     currency: row["Currency of Proceeds"],
     country: row["Country Code"],
-    fee: (parseFloat(row["Customer Price"] || "0") - parseFloat(row["Developer Proceeds"] || "0")).toFixed(2),
+    fee: (
+      parseFloat(row["Customer Price"] || "0") -
+      parseFloat(row["Developer Proceeds"] || "0")
+    ).toFixed(2),
   }));
 
   const filteredRecords = formatted.filter((record) => record.total_price > 0);
-
-  console.log(filteredRecords)
 
   return filteredRecords;
 }
