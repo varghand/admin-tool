@@ -176,26 +176,18 @@ app.get("/sales", verifyCognitoToken, checkAdminAccess, async (req, res) => {
 
     const stripeSales = await getStripeSales(month, year);
     const shopifySales = await getShopifySales(parseInt(month), parseInt(year));
-    res.json([...stripeSales, ...shopifySales]);
-  } catch (err) {
-    console.error(err);
+    const appleSales = await getAppleIAPSales(parseInt(year), parseInt(month)+1);
+    res.json([...stripeSales, ...shopifySales, ...appleSales]);
+  } catch (error) {
+    if (error.response) {
+      // Server responded with a status code outside 2xx
+      console.error("Error status:", error.response.status);
+      console.error("Error headers:", error.response.headers);
+      console.error("Error data:", error.response.data.toString());
+    } else {
+      console.error("Failed to fetch sales data:", error);
+    }
     res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-app.get("/shopify-sales", async (req, res) => {
-  const { month, year } = req.query;
-
-  if (!month || !year) {
-    return res.status(400).json({ error: "Missing month or year." });
-  }
-
-  try {
-    const result = await getShopifySales(parseInt(month), parseInt(year));
-    res.json(result);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Failed to fetch sales" });
   }
 });
 
@@ -241,8 +233,15 @@ app.get("/apple-sales", verifyCognitoToken, checkAdminAccess, async (req, res) =
 
     const sales = await getAppleIAPSales(parseInt(year), parseInt(month));
     res.json({ sales });
-  } catch (err) {
-    console.error("Failed to fetch Apple IAP sales:", err);
+  } catch (error) {
+    if (error.response) {
+      // Server responded with a status code outside 2xx
+      console.error("Error status:", error.response.status);
+      console.error("Error headers:", error.response.headers);
+      console.error("Error data:", error.response.data.toString());
+    } else {
+      console.error("Failed to fetch Apple IAP sales:", error);
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

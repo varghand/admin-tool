@@ -45,15 +45,15 @@ export default function SalesReportPage() {
         },
       });
 
-      const res2 = await axios.get(`${baseUrl}/apple-sales`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          month: parseInt(month), // 0-based index (e.g. July = 6)
-          year,
-        },
-      });
+      // const res2 = await axios.get(`${baseUrl}/apple-sales`, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   params: {
+      //     month: parseInt(month), // 0-based index (e.g. July = 6)
+      //     year,
+      //   },
+      // });
 
       setSalesData(res.data || []);
     } catch (err) {
@@ -116,7 +116,10 @@ export default function SalesReportPage() {
         </button>
       </div>
 
-      <p>Currently only showing sales made through Stripe + Shopify</p>
+      <p>
+        Currently showing sales made through Stripe + Shopify + Apple IAP
+        (physical sales made at events etc missing)
+      </p>
 
       {salesData.length > 0 && (
         <div className="overflow-auto bg-white p-4 rounded shadow">
@@ -142,22 +145,34 @@ export default function SalesReportPage() {
                 <tr key={i} className="border-t">
                   <td className="p-2">{i + 1}</td>
                   <td className="p-2">
-                    {new Date(sale.created_date).toLocaleString()}
+                    {isNaN(new Date(sale.created_date).getTime())
+                      ? ""
+                      : new Date(sale.created_date).toLocaleString()}
                   </td>
                   <td className="p-2">{sale.customer_name}</td>
                   <td className="p-2">{sale.payment_source}</td>
-                  <td className="p-2">{sale.total_price} kr</td>
-                  <td className="p-2">-{sale.fee} kr</td>
+                  <td className="p-2">
+                    {sale.total_price} {sale.currency}
+                  </td>
+                  <td className="p-2">
+                    -{sale.fee} {sale.currency}
+                  </td>
                   <td className="p-2">{sale.country}</td>
-                  <td className="p-2">{sale.products.map(product => product.title).join(" + ")}</td>
+                  {
+                    <td className="p-2">
+                      {sale.products
+                        .map((product) => product.title)
+                        .join(" + ")}
+                    </td>
+                  }
                 </tr>
               ))}
               <tr className="font-bold bg-gray-100">
                 <td className="p-2 border-b">{salesData.length}</td>
                 <td colSpan={3} className="p-2 border-b"></td>
-                <td className="p-2 border-b">{totalAmount.toFixed(2)} kr</td>
-                <td className="p-2 border-b">{totalFees.toFixed(2)} kr</td>
-                <td colSpan={2} className="p-2 border-b"></td>
+                {/* <td className="p-2 border-b">{totalAmount.toFixed(2)} kr</td>
+                <td className="p-2 border-b">{totalFees.toFixed(2)} kr</td> */}
+                <td colSpan={4} className="p-2 border-b"></td>
               </tr>
             </tbody>
           </table>

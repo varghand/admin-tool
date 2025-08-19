@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import axios from "axios";
 import zlib from "zlib";
 import { parse } from "csv-parse/sync";
-import fs from "fs";
 
 function generateToken() {
   const now = Math.floor(Date.now() / 1000);
@@ -54,20 +53,27 @@ export async function getAppleIAPSales(year, month) {
   });
 
   const formatted = parsedRecords.map((row) => ({
-    sku: row["SKU"],
+    customer_name: "",
+    created_date: "",
+    payment_source: "Apple IAP",
+    products: [
+      {
+        title: row["Title"],
+        id: row["SKU"],
+        quantity: parseInt(row["Units"], 10),
+      },
+    ],
     title: row["Title"],
-    units: parseInt(row["Units"], 10),
     proceeds: parseFloat(row["Developer Proceeds"] || "0"),
-    customer_price: parseFloat(row["Customer Price"] || "0"),
+    total_price: parseFloat(row["Customer Price"] || "0").toFixed(2),
     currency: row["Currency of Proceeds"],
     country: row["Country Code"],
-    fee: parseFloat(row["Customer Price"] || "0") - parseFloat(row["Developer Proceeds"] || "0")
+    fee: (parseFloat(row["Customer Price"] || "0") - parseFloat(row["Developer Proceeds"] || "0")).toFixed(2),
   }));
 
-  const filteredRecords = formatted.filter((record) => record.customer_price > 0);
+  const filteredRecords = formatted.filter((record) => record.total_price > 0);
 
   console.log(filteredRecords)
-  fs.writeFileSync(`apple_sales_${year}_${month}.csv`, csv);
 
   return filteredRecords;
 }
