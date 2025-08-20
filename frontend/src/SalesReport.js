@@ -40,20 +40,10 @@ export default function SalesReportPage() {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          month: parseInt(month), // 0-based index (e.g. July = 6)
+          month: parseInt(month),
           year,
         },
       });
-
-      // const res2 = await axios.get(`${baseUrl}/apple-sales`, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      //   params: {
-      //     month: parseInt(month), // 0-based index (e.g. July = 6)
-      //     year,
-      //   },
-      // });
 
       setSalesData(res.data || []);
     } catch (err) {

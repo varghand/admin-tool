@@ -30,6 +30,8 @@ export const getReadableFormat = (shortForm) => {
       return "CoC Revolver (UKGE)";
     case "fist_gnoll_demo":
       return "F.I.S.T. (Gnoll Cassette Demo)";
+    case "lw_fod_full":
+      return "The Fortress of Death";
     default:
       return shortForm;
   }

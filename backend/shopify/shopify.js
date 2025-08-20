@@ -55,6 +55,7 @@ export async function getShopifySales(month, year) {
         price: item.price,
       })),
       fee: (order.total_price * 0.015 + 1.85).toFixed(2), // Estimated
+      shipping_cost: parseFloat(order.total_shipping_price_set?.shop_money?.amount || 0),
     }));
 
     return formatted;

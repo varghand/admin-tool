@@ -4,6 +4,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import UserLookupPage from "./UserLookupPage";
 import UsersByAdventurePage from "./UsersByAdventurePage";
 import SalesReport from "./SalesReport";
+import RoyaltyReportPage from "./RoyaltyReport";
 import ActivationCodeStatsPage from "./ActivationCodeStatsPage";
 
 function App() {
@@ -19,6 +20,8 @@ function App() {
         return <SalesReport />;
       case "activation-codes":
         return <ActivationCodeStatsPage />;
+      case "royalty-report":
+        return <RoyaltyReportPage />;
       default:
         return null;
     }
@@ -69,6 +72,15 @@ function App() {
               }`}
             >
               Activation Codes
+            </button>
+
+            <button
+              onClick={() => setActivePage("royalty-report")}
+              className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
+                activePage === "activation-codes" ? "bg-brand-purple" : ""
+              }`}
+            >
+              Royalty Report
             </button>
           </nav>
         </aside>
