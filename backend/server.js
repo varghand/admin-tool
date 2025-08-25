@@ -16,6 +16,7 @@ import {
   getUnlockedContent,
   addSpecialItem,
   createUser,
+  removeAccessToAdventure,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
@@ -116,6 +117,23 @@ app.post(
     }
   }
 );
+
+app.delete("/users/:id/adventures/:adventureId", async (req, res) => {
+  const { id, adventureId } = req.params;
+
+  if (!id || !adventureId) {
+    return res.status(400).json({ error: "User ID and Adventure ID are required" });
+  }
+
+  try {
+    removeAccessToAdventure(id, adventureId);
+
+    res.json({ message: `Adventure ${adventureId} removed from user ${id}` });
+  } catch (error) {
+    console.error("Error removing adventure:", error);
+    res.status(500).json({ error: "Failed to remove adventure" });
+  }
+});
 
 app.post(
   "/user/:id/specialItems",

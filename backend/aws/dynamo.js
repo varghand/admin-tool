@@ -1,4 +1,4 @@
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
 import { DynamoDBClient, GetItemCommand, UpdateItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
@@ -52,6 +52,42 @@ export async function addAccessToAdventure(userEmail, adventureId) {
   });
 
   return await dynamoClient.send(updateCommand);
+}
+
+export async function removeAccessToAdventure(userEmail, adventureId) {
+  const normalizedEmail = userEmail.trim().toLowerCase();    
+  
+  const getParams = {
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: marshall({ userId: normalizedEmail })
+  };
+
+  const getResult = await dynamoClient.send(new GetItemCommand(getParams));
+  if (!getResult.Item) {
+    throw "User not found";
+  }
+
+  const user = unmarshall(getResult.Item);
+
+  const updatedAdventures = (user.adventures || []).filter(
+    (a) => a.adventureId !== adventureId
+  );
+
+  if (updatedAdventures.length === user.adventures.length) {
+    throw "Adventure not found in user's account";
+  }
+
+  const updateParams = {
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: marshall({ userId: normalizedEmail }),
+    UpdateExpression: "SET adventures = :adventures",
+    ExpressionAttributeValues: marshall({
+      ":adventures": updatedAdventures
+    }),
+    ReturnValues: "UPDATED_NEW"
+  };
+
+  await dynamoClient.send(new UpdateItemCommand(updateParams));
 }
 
 export async function addSpecialItem(userEmail, itemId) {

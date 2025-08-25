@@ -120,6 +120,35 @@ function UserLookupPage() {
     }
   };
 
+  const handleRemoveAdventure = async (adventureId) => {
+    if (!window.confirm(`Remove adventure: ${adventureId}?`)) return;
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/users/${user.userId}/adventures/${adventureId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state after successful removal
+      setUser((prev) => ({
+        ...prev,
+        adventures: prev.adventures.filter(
+          (a) => a.adventureId !== adventureId
+        ),
+      }));
+    } catch (err) {
+      console.error("Failed to remove adventure:", err);
+      alert("Could not remove adventure.");
+    }
+  };
+
   const ownedAdventureIds = new Set(
     user?.adventures?.map((a) => a.adventureId) || []
   );
@@ -203,7 +232,15 @@ function UserLookupPage() {
               <strong>Adventures:</strong>
               <ul className="list-disc list-inside">
                 {user.adventures.map((adv, i) => (
-                  <li key={i}>{getReadableFormat(adv.adventureId)}</li>
+                  <li key={i} className="flex items-center">
+                    <span>{getReadableFormat(adv.adventureId)}</span>
+                    <button
+                      onClick={() => handleRemoveAdventure(adv.adventureId)}
+                      className="ml-4 px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </li>
                 ))}
               </ul>
             </div>
