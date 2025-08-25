@@ -32,6 +32,8 @@ export const getReadableFormat = (shortForm) => {
       return "F.I.S.T. (Gnoll Cassette Demo)";
     case "lw_fod_full":
       return "The Fortress of Death";
+    case "coc_aatt_demo":
+      return "Alone Against the Tide (Demo Version)";
     default:
       return shortForm;
   }

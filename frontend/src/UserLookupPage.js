@@ -10,6 +10,7 @@ const adventureOptions = [
   "fod-expansions",
   "fod-kickstarter",
   "fist_gnoll_demo",
+  "coc_aatt_demo",
 ];
 const itemOptions = ["potionOfLaumspur", "bandOfTheBrave"];
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
