@@ -14,6 +14,7 @@ const adventureOptions = [
   "fod-pre-order",
   "fod-expansions",
   "fist_gnoll_demo",
+  "coc_aatt_demo",
 ];
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
