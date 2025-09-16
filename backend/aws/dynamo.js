@@ -1,5 +1,10 @@
-import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
-import { DynamoDBClient, GetItemCommand, UpdateItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  UpdateItemCommand,
+  PutItemCommand,
+} from "@aws-sdk/client-dynamodb";
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
@@ -30,7 +35,7 @@ export async function addAccessToAdventure(userEmail, adventureId) {
   const userKey = {
     userId: { S: normalizedEmail },
   };
-  
+
   const updateCommand = new UpdateItemCommand({
     TableName: process.env.UNLOCKED_CONTENT_TABLE,
     Key: userKey,
@@ -55,11 +60,11 @@ export async function addAccessToAdventure(userEmail, adventureId) {
 }
 
 export async function removeAccessToAdventure(userEmail, adventureId) {
-  const normalizedEmail = userEmail.trim().toLowerCase();    
-  
+  const normalizedEmail = userEmail.trim().toLowerCase();
+
   const getParams = {
     TableName: process.env.UNLOCKED_CONTENT_TABLE,
-    Key: marshall({ userId: normalizedEmail })
+    Key: marshall({ userId: normalizedEmail }),
   };
 
   const getResult = await dynamoClient.send(new GetItemCommand(getParams));
@@ -82,9 +87,9 @@ export async function removeAccessToAdventure(userEmail, adventureId) {
     Key: marshall({ userId: normalizedEmail }),
     UpdateExpression: "SET adventures = :adventures",
     ExpressionAttributeValues: marshall({
-      ":adventures": updatedAdventures
+      ":adventures": updatedAdventures,
     }),
-    ReturnValues: "UPDATED_NEW"
+    ReturnValues: "UPDATED_NEW",
   };
 
   await dynamoClient.send(new UpdateItemCommand(updateParams));
@@ -112,6 +117,31 @@ export async function addSpecialItem(userEmail, itemId) {
             },
           },
         ],
+      },
+      ":empty": { L: [] },
+    },
+    ReturnValues: "ALL_NEW",
+  });
+
+  return await dynamoClient.send(updateCommand);
+}
+
+export async function addFeature(userEmail, featureId) {
+  await createUser(userEmail);
+
+  const normalizedEmail = userEmail.trim().toLowerCase();
+  const userKey = {
+    userId: { S: normalizedEmail },
+  };
+
+  const updateCommand = new UpdateItemCommand({
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: userKey,
+    UpdateExpression:
+      "SET features = list_append(if_not_exists(features, :empty), :newItem)",
+    ExpressionAttributeValues: {
+      ":newItem": {
+        L: [{ S: featureId }],
       },
       ":empty": { L: [] },
     },

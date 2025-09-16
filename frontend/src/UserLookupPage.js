@@ -13,11 +13,14 @@ const adventureOptions = [
   "coc_aatt_demo",
 ];
 const itemOptions = ["potionOfLaumspur", "bandOfTheBrave"];
+const featureOptions = ["collector-cards", "download-offline-files"];
+
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
 function UserLookupPage() {
   const [newAdventure, setNewAdventure] = useState("");
   const [newSpecialItem, setNewSpecialItem] = useState("");
+  const [newFeature, setNewFeature] = useState("");
   const [userId, setUserId] = useState("");
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -98,6 +101,29 @@ function UserLookupPage() {
     }
   };
 
+  const addFeature = async () => {
+    if (!newFeature || !userId) return;
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+      await axios.post(
+        `${baseUrl}/user/${user.email ?? userId}/features`,
+        { featureId: newFeature },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchUser();
+      setNewFeature("");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add feature");
+    }
+  };
+
   const createUser = async () => {
     if (!userId || !userId.includes("@")) return;
 
@@ -158,6 +184,11 @@ function UserLookupPage() {
 
   const ownedItemIds = new Set(user?.specialItems?.map((i) => i.itemId) || []);
   const availableItems = itemOptions.filter((item) => !ownedItemIds.has(item));
+
+  const ownedFeatures = new Set(user?.features || []);
+  const availableFeatures = featureOptions.filter(
+    (item) => !ownedFeatures.has(item)
+  );
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -257,6 +288,17 @@ function UserLookupPage() {
             </div>
           )}
 
+          {user.features && (
+            <div>
+              <strong>Feature Previews:</strong>
+              <ul className="list-disc list-inside">
+                {user.features.map((item, i) => (
+                  <li key={i}>{getReadableFormat(item)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="pt-4 border-t border-gray-300">
             <h2 className="text-2xl font-bold mb-4">Add Content</h2>
 
@@ -308,6 +350,34 @@ function UserLookupPage() {
               <button
                 onClick={addSpecialItem}
                 disabled={!newSpecialItem || loading}
+                className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <label className="font-semibold">Add Feature Flag:</label>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex">
+                <select
+                  value={newFeature}
+                  onChange={(e) => setNewFeature(e.target.value)}
+                  className="w-64 md:w-80 border border-gray-400 p-2 rounded"
+                  disabled={loading}
+                >
+                  <option value="">Select feature</option>
+                  {availableFeatures.map((item) => (
+                    <option key={item} value={item}>
+                      {getReadableFormat(item)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={addFeature}
+                disabled={!newFeature || loading}
                 className="bg-brand-teal-dark text-white px-4 py-2 rounded hover:bg-brand-teal disabled:bg-brand-gray-medium"
               >
                 Add

@@ -17,6 +17,7 @@ import {
   addSpecialItem,
   createUser,
   removeAccessToAdventure,
+  addFeature,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
@@ -153,6 +154,28 @@ app.post(
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Failed to add adventure" });
+    }
+  }
+);
+
+app.post(
+  "/user/:id/features",
+  verifyCognitoToken,
+  checkAdminAccess,
+  async (req, res) => {
+    const userId = req.params.id;
+    const { featureId } = req.body;
+
+    if (!featureId) {
+      return res.status(400).json({ error: "featureId is required" });
+    }
+
+    try {
+      await addFeature(userId, featureId);
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to add feature" });
     }
   }
 );
