@@ -18,6 +18,8 @@ import {
   createUser,
   removeAccessToAdventure,
   addFeature,
+  removeAccessToSpecialItem,
+  removeAccessToFeature,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
@@ -158,6 +160,23 @@ app.post(
   }
 );
 
+app.delete("/users/:id/specialItems/:itemId", async (req, res) => {
+  const { id, itemId } = req.params;
+
+  if (!id || !itemId) {
+    return res.status(400).json({ error: "User ID and Item ID are required" });
+  }
+
+  try {
+    removeAccessToSpecialItem(id, itemId);
+
+    res.json({ message: `Special Item ${itemId} removed from user ${id}` });
+  } catch (error) {
+    console.error("Error removing special item:", error);
+    res.status(500).json({ error: "Failed to remove special item" });
+  }
+});
+
 app.post(
   "/user/:id/features",
   verifyCognitoToken,
@@ -179,6 +198,23 @@ app.post(
     }
   }
 );
+
+app.delete("/users/:id/features/:featureId", async (req, res) => {
+  const { id, featureId } = req.params;
+
+  if (!id || !featureId) {
+    return res.status(400).json({ error: "User ID and Feature ID are required" });
+  }
+
+  try {
+    removeAccessToFeature(id, featureId);
+
+    res.json({ message: `FEature ${featureId} removed from user ${id}` });
+  } catch (error) {
+    console.error("Error removing feature:", error);
+    res.status(500).json({ error: "Failed to remove feature" });
+  }
+});
 
 app.get(
   "/users/by-adventure/:adventureId",

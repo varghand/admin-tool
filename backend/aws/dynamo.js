@@ -126,6 +126,42 @@ export async function addSpecialItem(userEmail, itemId) {
   return await dynamoClient.send(updateCommand);
 }
 
+export async function removeAccessToSpecialItem(userEmail, itemId) {
+  const normalizedEmail = userEmail.trim().toLowerCase();
+
+  const getParams = {
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: marshall({ userId: normalizedEmail }),
+  };
+
+  const getResult = await dynamoClient.send(new GetItemCommand(getParams));
+  if (!getResult.Item) {
+    throw "User not found";
+  }
+
+  const user = unmarshall(getResult.Item);
+
+  const updatedItems = (user.specialItems || []).filter(
+    (a) => a.itemId !== itemId
+  );
+
+  if (updatedItems.length === user.specialItems.length) {
+    throw "Special item not found in user's account";
+  }
+
+  const updateParams = {
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: marshall({ userId: normalizedEmail }),
+    UpdateExpression: "SET specialItems = :specialItems",
+    ExpressionAttributeValues: marshall({
+      ":specialItems": updatedItems,
+    }),
+    ReturnValues: "UPDATED_NEW",
+  };
+
+  await dynamoClient.send(new UpdateItemCommand(updateParams));
+}
+
 export async function addFeature(userEmail, featureId) {
   await createUser(userEmail);
 
@@ -149,6 +185,40 @@ export async function addFeature(userEmail, featureId) {
   });
 
   return await dynamoClient.send(updateCommand);
+}
+
+export async function removeAccessToFeature(userEmail, featureId) {
+  const normalizedEmail = userEmail.trim().toLowerCase();
+
+  const getParams = {
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: marshall({ userId: normalizedEmail }),
+  };
+
+  const getResult = await dynamoClient.send(new GetItemCommand(getParams));
+  if (!getResult.Item) {
+    throw "User not found";
+  }
+
+  const user = unmarshall(getResult.Item);
+
+  const updatedFeatures = (user.features || []).filter((a) => a !== featureId);
+
+  if (updatedFeatures.length === user.features.length) {
+    throw "Feature not found in user's account";
+  }
+
+  const updateParams = {
+    TableName: process.env.UNLOCKED_CONTENT_TABLE,
+    Key: marshall({ userId: normalizedEmail }),
+    UpdateExpression: "SET features = :features",
+    ExpressionAttributeValues: marshall({
+      ":features": updatedFeatures,
+    }),
+    ReturnValues: "UPDATED_NEW",
+  };
+
+  await dynamoClient.send(new UpdateItemCommand(updateParams));
 }
 
 export async function createUser(userEmail) {

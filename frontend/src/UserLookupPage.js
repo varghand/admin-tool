@@ -175,6 +175,60 @@ function UserLookupPage() {
     }
   };
 
+  const handleRemoveItem = async (itemId) => {
+    if (!window.confirm(`Remove item: ${itemId}?`)) return;
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/users/${user.userId}/specialItems/${itemId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state after successful removal
+      setUser((prev) => ({
+        ...prev,
+        specialItems: prev.specialItems.filter((a) => a.itemId !== itemId),
+      }));
+    } catch (err) {
+      console.error("Failed to remove special item:", err);
+      alert("Could not remove special item.");
+    }
+  };
+
+  const handleRemoveFeature = async (featureId) => {
+    if (!window.confirm(`Remove feature: ${featureId}?`)) return;
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_BASE_URL}/users/${user.userId}/features/${featureId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state after successful removal
+      setUser((prev) => ({
+        ...prev,
+        features: prev.features.filter((a) => a !== featureId),
+      }));
+    } catch (err) {
+      console.error("Failed to remove feature:", err);
+      alert("Could not remove feature.");
+    }
+  };
+
   const ownedAdventureIds = new Set(
     user?.adventures?.map((a) => a.adventureId) || []
   );
@@ -282,7 +336,15 @@ function UserLookupPage() {
               <strong>Special Items:</strong>
               <ul className="list-disc list-inside">
                 {user.specialItems.map((item, i) => (
-                  <li key={i}>{getReadableFormat(item.itemId)}</li>
+                  <li key={i}>
+                    <span>{getReadableFormat(item.itemId)}</span>
+                    <button
+                      onClick={() => handleRemoveItem(item.itemId)}
+                      className="ml-4 px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -293,7 +355,15 @@ function UserLookupPage() {
               <strong>Feature Previews:</strong>
               <ul className="list-disc list-inside">
                 {user.features.map((item, i) => (
-                  <li key={i}>{getReadableFormat(item)}</li>
+                  <li key={i}>
+                    <span>{getReadableFormat(item)}</span>
+                    <button
+                      onClick={() => handleRemoveFeature(item)}
+                      className="ml-4 px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </li>
                 ))}
               </ul>
             </div>
