@@ -12,8 +12,28 @@ const adventureOptions = [
   "fist_gnoll_demo",
   "coc_aatt_demo",
 ];
-const itemOptions = ["potionOfLaumspur", "bandOfTheBrave"];
-const featureOptions = ["collector-cards", "download-offline-files"];
+const itemOptions = [
+  "lw_potionOfLaumspur",
+  "bandOfTheBrave",
+  "ukge_potionOfLaumspur",
+  "lw_axemaster",
+  "lw_modern_emblem",
+  "lw_swordmaster",
+  "lw_warrior",
+  "lw_5_gold",
+  "lw_axe",
+  "lw_beastbane",
+  "lw_circular_emblem",
+  "lw_fortunate",
+  "lw_gourgaz_bleeder",
+  "lw_helmet",
+  "lw_meal",
+  "lw_oldschool_emblem",
+  "lw_phonequest_logo",
+  "lw_rope",
+  "lw_spearmaster",
+];
+const featureOptions = ["collector-cards"];
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
@@ -333,7 +353,7 @@ function UserLookupPage() {
 
           {user.specialItems && (
             <div>
-              <strong>Special Items:</strong>
+              <strong>Special Items/Collector Cards:</strong>
               <ul className="list-disc list-inside">
                 {user.specialItems.map((item, i) => (
                   <li key={i}>
@@ -400,7 +420,9 @@ function UserLookupPage() {
           </div>
 
           <div className="pt-4">
-            <label className="font-semibold">Add Special Item:</label>
+            <label className="font-semibold">
+              Add Special Item/Collector Card:
+            </label>
             <div className="flex items-center gap-2 mt-2">
               <div className="flex">
                 <select
