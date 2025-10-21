@@ -32,6 +32,11 @@ const itemOptions = [
   "lw_phonequest_logo",
   "lw_rope",
   "lw_spearmaster",
+  "aatt_brawler",
+  "aatt_magnifying_glass",
+  "aatt_revolver",
+  "aatt_shotgun",
+  "aatt_sword_cane",
 ];
 const featureOptions = ["collector-cards"];
 
