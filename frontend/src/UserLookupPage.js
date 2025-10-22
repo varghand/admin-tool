@@ -38,7 +38,7 @@ const itemOptions = [
   "aatt_shotgun",
   "aatt_sword_cane",
 ];
-const featureOptions = ["collector-cards"];
+const featureOptions = ["collector-cards", "show-demo-indicator"];
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
@@ -455,7 +455,7 @@ function UserLookupPage() {
           </div>
 
           <div className="pt-4">
-            <label className="font-semibold">Add Feature Flag:</label>
+            <label className="font-semibold">Add Feature Toggle:</label>
             <div className="flex items-center gap-2 mt-2">
               <div className="flex">
                 <select
