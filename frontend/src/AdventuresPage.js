@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { fetchAuthSession } from "@aws-amplify/auth";
+import { getReadableFormat } from "./helpers/readableFormat";
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
@@ -24,8 +25,6 @@ export default function AdventuresListPage() {
         (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
       );
 
-      console.log(sorted)
-
       setAdventures(sorted);
     } catch (err) {
       console.error("Failed to fetch adventures:", err);
@@ -36,6 +35,13 @@ export default function AdventuresListPage() {
   useEffect(() => {
     fetchAdventures();
   }, []);
+
+  const getStatus = (adventure) => {
+    if (adventure.isReleased) return "Released 🚀";
+    if (adventure.isBeta) return "Beta 🔮";
+    if (adventure.isPreOrder) return "Pre-Order 💰";
+    return "–";
+  };
 
   return (
     <div className="space-y-4">
@@ -48,25 +54,19 @@ export default function AdventuresListPage() {
           <table className="min-w-full table-auto border-collapse">
             <thead>
               <tr className="text-left border-b border-gray-300">
-                <th className="py-2 px-4 font-semibold">Adventure ID</th>
+                <th className="py-2 px-4 font-semibold">Adventure</th>
+                <th className="py-2 px-4 font-semibold">Status</th>
                 <th className="py-2 px-4 font-semibold">Demo Available</th>
-                <th className="py-2 px-4 font-semibold">Beta</th>
-                <th className="py-2 px-4 font-semibold">Pre-Order</th>
-                <th className="py-2 px-4 font-semibold">Soundtrack</th>
-                <th className="py-2 px-4 font-semibold">Released</th>
-                <th className="py-2 px-4 font-semibold">Sort Order</th>
+                <th className="py-2 px-4 font-semibold">Soundtrack Available</th>
               </tr>
             </thead>
             <tbody>
               {adventures.map((a) => (
                 <tr key={a.adventureId} className="border-b border-gray-200">
-                  <td className="py-2 px-4 font-mono">{a.adventureId}</td>
+                  <td className="py-2 px-4">{getReadableFormat(a.adventureId)}</td>
+                  <td className="py-2 px-4">{getStatus(a)}</td>
                   <td className="py-2 px-4">{a.freeDemoAvailable ? "✅" : "❌"}</td>
-                  <td className="py-2 px-4">{a.isBeta ? "✅" : "❌"}</td>
-                  <td className="py-2 px-4">{a.isPreOrder ? "✅" : "❌"}</td>
                   <td className="py-2 px-4">{a.soundtrackAvailable ? "✅" : "❌"}</td>
-                  <td className="py-2 px-4">{a.isReleased ? "✅" : "❌"}</td>
-                  <td className="py-2 px-4">{a.sortOrder ?? "-"}</td>
                 </tr>
               ))}
             </tbody>

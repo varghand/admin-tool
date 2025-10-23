@@ -34,6 +34,12 @@ export const getReadableFormat = (shortForm) => {
       return "The Fortress of Death";
     case "coc_aatt_demo":
       return "Alone Against the Tide (Demo Version)";
+    case "coc_aatt":
+      return "Alone Against the Tide";
+    case "vemhir1":
+      return "Vemhir's Castle";
+    case "dracula":
+      return "Dracula: Curse of the Vampire";
     default:
       return shortForm;
   }

@@ -11,6 +11,7 @@ const adventureOptions = [
   "fod-kickstarter",
   "fist_gnoll_demo",
   "coc_aatt_demo",
+  "coc_aatt",
 ];
 const itemOptions = [
   "lw_potionOfLaumspur",
