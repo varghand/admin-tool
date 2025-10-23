@@ -6,6 +6,7 @@ import UsersByAdventurePage from "./UsersByAdventurePage";
 import SalesReport from "./SalesReport";
 import RoyaltyReportPage from "./RoyaltyReport";
 import ActivationCodeStatsPage from "./ActivationCodeStatsPage";
+import AdventuresListPage from "./AdventuresPage";
 
 function App() {
   const [activePage, setActivePage] = useState("user-lookup");
@@ -22,6 +23,8 @@ function App() {
         return <ActivationCodeStatsPage />;
       case "royalty-report":
         return <RoyaltyReportPage />;
+      case "adventures":
+        return <AdventuresListPage />;
       default:
         return null;
     }
@@ -81,6 +84,15 @@ function App() {
               }`}
             >
               Royalty Report
+            </button>
+
+            <button
+              onClick={() => setActivePage("adventures")}
+              className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
+                activePage === "activation-codes" ? "bg-brand-purple" : ""
+              }`}
+            >
+              Adventures
             </button>
           </nav>
         </aside>

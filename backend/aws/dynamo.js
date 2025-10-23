@@ -4,6 +4,7 @@ import {
   GetItemCommand,
   UpdateItemCommand,
   PutItemCommand,
+  ScanCommand,
 } from "@aws-sdk/client-dynamodb";
 
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
@@ -246,5 +247,25 @@ export async function createUser(userEmail) {
     });
 
     return await dynamoClient.send(putCommand);
+  }
+}
+
+export async function getAvailableContent() {
+  try {
+    const command = new ScanCommand({
+      TableName: process.env.AVAILABLE_CONTENT_TABLE,
+    });
+
+    const result = await dynamoClient.send(command);
+    if (!result.Items) {
+      return []; 
+    }
+
+    const adventures = result.Items.map(unmarshall);
+    adventures.sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999));
+    return adventures;
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    return [];
   }
 }

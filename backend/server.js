@@ -20,6 +20,7 @@ import {
   addFeature,
   removeAccessToSpecialItem,
   removeAccessToFeature,
+  getAvailableContent,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
@@ -322,3 +323,19 @@ app.get("/apple-sales", verifyCognitoToken, checkAdminAccess, async (req, res) =
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+app.get(
+  "/api/available-adventures",
+  verifyCognitoToken,
+  checkAdminAccess,
+  async (req, res) => {
+    try {
+      const result = await getAvailableContent();
+      res.set("Cache-Control", "no-store"); 
+      res.json(result);
+    } catch (err) {
+      console.error("Failed to count unlocks:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
