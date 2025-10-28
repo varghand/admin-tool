@@ -8,6 +8,7 @@ const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 export default function AdventuresListPage() {
   const [adventures, setAdventures] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(null);
 
   const fetchAdventures = async () => {
     setLoading(true);
@@ -37,10 +38,49 @@ export default function AdventuresListPage() {
   }, []);
 
   const getStatus = (adventure) => {
-    if (adventure.isReleased) return "Released 🚀";
-    if (adventure.isBeta) return "Beta 🔮";
-    if (adventure.isPreOrder) return "Pre-Order 💰";
-    return "–";
+    if (adventure.isReleased) return "Released";
+    if (adventure.isBeta) return "Beta";
+    if (adventure.isPreOrder) return "Pre-Order";
+    return "None";
+  };
+
+  const handleStatusChange = async (adventureId, newStatus) => {
+    // Optimistic UI update
+    const updated = adventures.map((a) => {
+      if (a.adventureId === adventureId) {
+        return {
+          ...a,
+          isReleased: newStatus === "Released",
+          isBeta: newStatus === "Beta",
+          isPreOrder: newStatus === "Pre-Order",
+        };
+      }
+      return a;
+    });
+    setAdventures(updated);
+    setSaving(adventureId);
+
+    try {
+      const session = await fetchAuthSession();
+      const token = session.tokens.idToken;
+
+      await axios.put(
+        `${baseUrl}/api/available-adventures/${adventureId}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      alert("Failed to update status. Please try again.");
+
+      // Revert if error
+      fetchAdventures();
+    }
+    setSaving(null);
   };
 
   return (
@@ -64,9 +104,27 @@ export default function AdventuresListPage() {
               {adventures.map((a) => (
                 <tr key={a.adventureId} className="border-b border-gray-200">
                   <td className="py-2 px-4">{getReadableFormat(a.adventureId)}</td>
-                  <td className="py-2 px-4">{getStatus(a)}</td>
-                  <td className="py-2 px-4">{a.freeDemoAvailable ? "✅" : "❌"}</td>
-                  <td className="py-2 px-4">{a.soundtrackAvailable ? "✅" : "❌"}</td>
+                  <td className="py-2 px-4">
+                    <select
+                      value={getStatus(a)}
+                      onChange={(e) =>
+                        handleStatusChange(a.adventureId, e.target.value)
+                      }
+                      disabled={saving === a.adventureId}
+                      className="border border-gray-300 rounded px-2 py-1"
+                    >
+                      <option value="Released">Released 🚀</option>
+                      <option value="Beta">Beta 🔮</option>
+                      <option value="Pre-Order">Pre-Order 💰</option>
+                      <option value="None">–</option>
+                    </select>
+                  </td>
+                  <td className="py-2 px-4">
+                    {a.freeDemoAvailable ? "✅" : "❌"}
+                  </td>
+                  <td className="py-2 px-4">
+                    {a.soundtrackAvailable ? "✅" : "❌"}
+                  </td>
                 </tr>
               ))}
             </tbody>

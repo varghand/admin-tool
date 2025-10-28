@@ -269,3 +269,41 @@ export async function getAvailableContent() {
     return [];
   }
 }
+
+export async function updateAdventureStatus(adventureId, status) {
+  const isReleased = status === "Released";
+  const isBeta = status === "Beta";
+  const isPreOrder = status === "Pre-Order";
+  const isNone = status === "None" || status === "–";
+
+  const values = {
+    ":r": isReleased && !isNone,
+    ":b": isBeta && !isNone,
+    ":p": isPreOrder && !isNone,
+  };
+
+  try {
+    const command = new UpdateItemCommand({
+      TableName: process.env.AVAILABLE_CONTENT_TABLE,
+      Key: marshall({ adventureId }),
+      UpdateExpression: `
+        SET isReleased = :r,
+            isBeta = :b,
+            isPreOrder = :p
+      `,
+      ExpressionAttributeValues: marshall(values),
+      ReturnValues: "ALL_NEW",
+    });
+
+    const result = await dynamoClient.send(command);
+
+    return {
+      success: true,
+      adventureId,
+      updated: result.Attributes ? result.Attributes : {},
+    };
+  } catch (err) {
+    console.error("Error updating adventure status:", err);
+    throw err;
+  }
+}

@@ -21,6 +21,7 @@ import {
   removeAccessToSpecialItem,
   removeAccessToFeature,
   getAvailableContent,
+  updateAdventureStatus,
 } from "./aws/dynamo.js";
 import { getStripeSales } from "./stripe/stripe.js";
 import { getShopifySales } from "./shopify/shopify.js";
@@ -335,6 +336,28 @@ app.get(
       res.json(result);
     } catch (err) {
       console.error("Failed to count unlocks:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+app.put(
+  "/api/available-adventures/:adventureId/status",
+  verifyCognitoToken,
+  checkAdminAccess,
+  async (req, res) => {
+    const { adventureId } = req.params;
+    const { status } = req.body;
+
+    if (!adventureId || !status) {
+      return res.status(400).json({ error: "Missing adventureId or status" });
+    }
+
+    try {
+      const result = await updateAdventureStatus(adventureId, status);
+      res.json(result);
+    } catch (err) {
+      console.error("Failed to update adventure status:", err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
