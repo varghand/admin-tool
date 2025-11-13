@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { verifyCognitoToken } from "./middleware/authentication.js";
-import { checkAdminAccess } from "./middleware/authorization.js";
+import { checkAdminAccess, checkPowerlordAccess } from "./middleware/authorization.js";
 import {
   getCognitoUserByEmail,
   getCognitoUserByUsername,
@@ -344,7 +344,7 @@ app.get(
 app.put(
   "/api/available-adventures/:adventureId/status",
   verifyCognitoToken,
-  checkAdminAccess,
+  checkPowerlordAccess,
   async (req, res) => {
     const { adventureId } = req.params;
     const { status } = req.body;

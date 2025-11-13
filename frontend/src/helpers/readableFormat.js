@@ -1,7 +1,11 @@
 export const getReadableFormat = (shortForm) => {
   switch (shortForm) {
     case "varghand-employee":
+      return "varghand-employee (Legacy Access)";
+      case "sound-realms-admin":
       return "Sound Realms Admin";
+      case "sound-realms-powerlord":
+      return "Powerlord (Super Admin Access)";
     case "fod-pre-order":
       return "The Fortress of Death (Pre-Order)";
     case "fod":
