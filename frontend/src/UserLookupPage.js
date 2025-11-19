@@ -39,7 +39,7 @@ const itemOptions = [
   "aatt_shotgun",
   "aatt_sword_cane",
 ];
-const featureOptions = ["collector-cards", "show-demo-indicator"];
+const featureOptions = ["collector-cards", "alpha-tester"];
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
@@ -378,7 +378,7 @@ function UserLookupPage() {
 
           {user.features && (
             <div>
-              <strong>Feature Previews:</strong>
+              <strong>Feature Toggles:</strong>
               <ul className="list-disc list-inside">
                 {user.features.map((item, i) => (
                   <li key={i}>
