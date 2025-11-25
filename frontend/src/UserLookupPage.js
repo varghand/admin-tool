@@ -39,7 +39,7 @@ const itemOptions = [
   "aatt_shotgun",
   "aatt_sword_cane",
 ];
-const featureOptions = ["collector-cards", "alpha-tester", "info-pages"];
+const featureOptions = ["alpha-tester", "info-pages"];
 
 const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 
