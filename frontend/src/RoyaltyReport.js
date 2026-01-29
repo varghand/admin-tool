@@ -60,7 +60,10 @@ export default function SalesReportPage() {
     sales.forEach((sale) => {
       if (
         sale.payment_source === "Stripe (fast checkout)" ||
-        sale.payment_source === "PayPal (through Stripe)"
+        sale.payment_source === "PayPal (through Stripe)" ||
+        sale.payment_source === "ideal" ||
+        sale.payment_source === "eps" ||
+        sale.payment_source === "klarna"
       ) {
         sale.payment_source = "Stripe";
       }
@@ -105,6 +108,10 @@ export default function SalesReportPage() {
         return 100;
       case "F.I.S.T. T-shirt":
         return 100;
+      case "Call of Cthulhu - Alone Against the Tide, Deluxe Box Set":
+        return 100;
+      case "Call of Cthulhu - Alone Against the Tide, Tuck Box Set":
+        return 50;
       default:
         return 0;
     }
