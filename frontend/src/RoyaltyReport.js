@@ -164,6 +164,12 @@ export default function SalesReportPage() {
         return 100;
       case "Call of Cthulhu - Alone Against the Tide, Tuck Box Set":
         return 50;
+      case "F.I.S.T. Tuck Box Set":
+        return 50;
+      case "Lone Wolf – The Fortress Of Death, Tuck Box Set":
+        return 50;
+      case "Lone Wolf – The Fortress Of Death, Deluxe Box Set":
+        return 100;
       default:
         return 0;
     }
@@ -219,8 +225,7 @@ export default function SalesReportPage() {
       </div>
 
       <p>
-        Currently showing sales made through Stripe + Shopify + Apple IAP
-        (physical sales made at events etc missing)
+        Currently showing sales made through Stripe + Shopify + Apple IAP + Physical Events (for July 2025 and onwards)
       </p>
 
       {salesData.length > 0 && (

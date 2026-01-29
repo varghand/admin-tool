@@ -124,7 +124,7 @@ export async function getAppleIAPSales(year, month) {
         Item: marshall({
           yearMonth: yearMonthKey,
           salesChannel: "Apple IAP",
-          sales: formatted,
+          sales: filteredRecords,
         }),
       }),
     );

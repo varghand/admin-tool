@@ -76,7 +76,7 @@ export async function removeAccessToAdventure(userEmail, adventureId) {
   const user = unmarshall(getResult.Item);
 
   const updatedAdventures = (user.adventures || []).filter(
-    (a) => a.adventureId !== adventureId
+    (a) => a.adventureId !== adventureId,
   );
 
   if (updatedAdventures.length === user.adventures.length) {
@@ -143,7 +143,7 @@ export async function removeAccessToSpecialItem(userEmail, itemId) {
   const user = unmarshall(getResult.Item);
 
   const updatedItems = (user.specialItems || []).filter(
-    (a) => a.itemId !== itemId
+    (a) => a.itemId !== itemId,
   );
 
   if (updatedItems.length === user.specialItems.length) {
@@ -258,7 +258,7 @@ export async function getAvailableContent() {
 
     const result = await dynamoClient.send(command);
     if (!result.Items) {
-      return []; 
+      return [];
     }
 
     const adventures = result.Items.map(unmarshall);
@@ -306,4 +306,29 @@ export async function updateAdventureStatus(adventureId, status) {
     console.error("Error updating adventure status:", err);
     throw err;
   }
+}
+
+export async function getSales(month, year, source) {
+  const yearMonthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+  const requestedDate = new Date(Date.UTC(year, month, 1));
+  const now = new Date();
+  const firstDayOfCurrentMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
+
+  if (requestedDate < firstDayOfCurrentMonth) {
+    const existing = await dynamoClient.send(
+      new GetItemCommand({
+        TableName: process.env.SALES_REPORT_TABLE,
+        Key: marshall({ yearMonth: yearMonthKey, salesChannel: source }),
+      }),
+    );
+
+    if (existing.Item) {
+      return unmarshall(existing.Item).sales;
+    }
+  }
+
+  return [];
 }
