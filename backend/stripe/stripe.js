@@ -15,8 +15,9 @@ export async function getStripeSales(month, year) {
   const requestedDate = new Date(Date.UTC(year, month, 1));
   const now = new Date();
   const firstDayOfCurrentMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
   );
+
   if (requestedDate < firstDayOfCurrentMonth) {
     const existing = await dynamoClient.send(
       new GetItemCommand({
@@ -71,7 +72,7 @@ export async function getStripeSales(month, year) {
 
   for (const chunk of balanceChunks) {
     const txPromises = chunk.map((id) =>
-      stripe.balanceTransactions.retrieve(id)
+      stripe.balanceTransactions.retrieve(id),
     );
     const txResults = await Promise.all(txPromises);
 
@@ -94,11 +95,15 @@ export async function getStripeSales(month, year) {
     if (charge.invoice) {
       try {
         const lineItems = await stripe.invoices.listLineItems(charge.invoice);
-        products = await Promise.all(
-          lineItems.data
-            .filter((item) => item.price?.product)
-            .map((item) => stripe.products.retrieve(item.price.product))
-        );
+        products = lineItems.data
+          .filter((item) => item.price?.product)
+          .map((item) => ({
+            title: item.description,
+            quantity: item.quantity ?? 1,
+            unit_price: item.price.unit_amount / 100,
+            line_total: item.amount_total / 100,
+            product_id: item.price.product,
+          }));
       } catch {
         console.log("Error fetching products");
       }
@@ -113,13 +118,17 @@ export async function getStripeSales(month, year) {
           const session = sessions.data[0];
 
           const lineItems = await stripe.checkout.sessions.listLineItems(
-            session.id
+            session.id,
           );
-          products = await Promise.all(
-            lineItems.data
-              .filter((item) => item.price?.product)
-              .map((item) => stripe.products.retrieve(item.price.product))
-          );
+          products = lineItems.data
+            .filter((item) => item.price?.product)
+            .map((item) => ({
+              title: item.description,
+              quantity: item.quantity ?? 1,
+              unit_price: item.price.unit_amount / 100,
+              line_total: item.amount_total / 100,
+              product_id: item.price.product,
+            }));
         } else {
           console.log("No products found in checkout session");
         }
@@ -130,24 +139,25 @@ export async function getStripeSales(month, year) {
       console.log("No invoice or payment_intent");
     }
 
-    formatted.push({
-      id: charge.id,
-      payment_source: getPaymentType(charge.payment_method_details?.type),
-      currency: charge.currency.toUpperCase(),
-      total_price: (charge.amount / 100).toFixed(2),
-      fee,
-      created_date: new Date(charge.created * 1000).toISOString(),
-      customer_name: charge.billing_details?.name || "",
-      country:
-        charge.payment_method_details?.card?.country ||
-        charge.billing_details?.address?.country ||
-        "",
-      products: products.map((item) => ({
-        title: item.name,
-        quantity: 1,
-        id: item.metadata.sound_realms_product_id,
-      })),
-    });
+    for (const product of products) {
+      formatted.push({
+        id: charge.id,
+        fee: fee / products.length,
+        payment_source: getPaymentType(charge.payment_method_details?.type),
+        currency: charge.currency.toUpperCase(),
+        total_price: product.line_total.toFixed(2),
+        unit_price: product.unit_price.toFixed(2),
+        quantity: product.quantity,
+        created_date: new Date(charge.created * 1000).toISOString(),
+        customer_name: charge.billing_details?.name || "",
+        country:
+          charge.payment_method_details?.card?.country ||
+          charge.billing_details?.address?.country ||
+          "",
+        product_title: product.title,
+        product_id: product.title,
+      });
+    }
   }
 
   if (requestedDate < firstDayOfCurrentMonth) {
@@ -159,7 +169,7 @@ export async function getStripeSales(month, year) {
           salesChannel: "Stripe",
           sales: formatted,
         }),
-      })
+      }),
     );
   }
 
