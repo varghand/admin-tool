@@ -58,49 +58,46 @@ export default function SalesReportPage() {
 
   const flattenAndAggregate = (sales) => {
     sales.forEach((sale) => {
-      if (sale.payment_source === "Stripe (fast checkout)" || sale.payment_source === "PayPal (through Stripe)") {
+      if (
+        sale.payment_source === "Stripe (fast checkout)" ||
+        sale.payment_source === "PayPal (through Stripe)"
+      ) {
         sale.payment_source = "Stripe";
       }
     });
 
     const aggregated = Object.values(
-      sales
-        .flatMap((sale) =>
-          sale.products.map((product) => {
-            const key = `${product.id || product.title}_${sale.currency}_${
-              sale.payment_source
-            }`;
-            return {
-              key,
-              product_id: product.id || product.title,
-              currency: sale.currency,
-              number_of_sales: product.quantity,
-              total_amount: parseFloat(sale.total_price),
-              total_fee: parseFloat(sale.fee),
-              payment_source: sale.payment_source,
-              shipping_cost: parseFloat(sale.shipping_cost) || 0,
-            };
-          })
-        )
-        .reduce((acc, item) => {
-          if (!acc[item.key]) {
-            acc[item.key] = { ...item };
-          } else {
-            acc[item.key].number_of_sales += item.number_of_sales;
-            acc[item.key].total_amount += item.total_amount;
-            acc[item.key].total_fee += item.total_fee;
-            acc[item.key].shipping_cost += item.shipping_cost;
-          }
-          return acc;
-        }, {})
-    );
+      sales.reduce((acc, sale) => {
+        const key = `${sale.product_id}_${sale.currency}_${sale.payment_source}`;
 
-    console.log(aggregated);
+        if (!acc[key]) {
+          acc[key] = {
+            key,
+            product_id: sale.product_id,
+            currency: sale.currency,
+            number_of_sales: sale.quantity,
+            total_amount: parseFloat(sale.total_price),
+            total_fee: parseFloat(sale.fee),
+            payment_source: sale.payment_source,
+            shipping_cost: parseFloat(sale.shipping_cost) || 0,
+          };
+        } else {
+          acc[key].number_of_sales += sale.quantity;
+          acc[key].total_amount += parseFloat(sale.total_price);
+          acc[key].total_fee += parseFloat(sale.fee);
+          acc[key].shipping_cost += parseFloat(sale.shipping_cost) || 0;
+        }
+
+        return acc;
+      }, {}),
+    );
 
     return aggregated;
   };
 
   const getPrintingCosts = (item) => {
+    if (!item || typeof item !== "string") return 0;
+
     switch (item.trim()) {
       case "F.I.S.T. Deluxe Box Set":
         return 100;
@@ -108,9 +105,10 @@ export default function SalesReportPage() {
         return 100;
       case "F.I.S.T. T-shirt":
         return 100;
+      default:
+        return 0;
     }
-    return 0;
-  }
+  };
 
   const formatAmount = (num) => {
     if (!num) {
@@ -205,13 +203,18 @@ export default function SalesReportPage() {
                   </td>
                   <td className="p-2">
                     {getPrintingCosts(sale.product_id) > 0
-                      ? `-${getPrintingCosts(sale.product_id)*sale.number_of_sales} ${sale.currency}`
+                      ? `-${getPrintingCosts(sale.product_id) * sale.number_of_sales} ${sale.currency}`
                       : ""}
                   </td>
                   <td className="p-2">25%</td>
                   <td className="p-2">
                     {formatAmount(
-                      (sale.total_amount - sale.total_fee - sale.shipping_cost - getPrintingCosts(sale.product_id)*sale.number_of_sales)/1.25
+                      (sale.total_amount -
+                        sale.total_fee -
+                        sale.shipping_cost -
+                        getPrintingCosts(sale.product_id) *
+                          sale.number_of_sales) /
+                        1.25,
                     )}{" "}
                     {sale.currency}
                   </td>

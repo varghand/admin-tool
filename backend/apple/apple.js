@@ -19,7 +19,7 @@ function generateToken() {
         kid: process.env.APPLE_KEY_ID,
         typ: "JWT",
       },
-    }
+    },
   );
 }
 
@@ -61,27 +61,30 @@ export async function getAppleIAPSales(year, month) {
     delimiter: "\t",
   });
 
-  const formatted = parsedRecords.map((row) => ({
-    customer_name: "",
-    created_date: "",
-    payment_source: "Apple IAP",
-    products: [
-      {
-        title: row["Title"],
-        id: row["SKU"],
-        quantity: parseInt(row["Units"], 10),
-      },
-    ],
-    title: row["Title"],
-    proceeds: parseFloat(row["Developer Proceeds"] || "0"),
-    total_price: parseFloat(row["Customer Price"] || "0").toFixed(2),
-    currency: row["Currency of Proceeds"],
-    country: row["Country Code"],
-    fee: (
-      parseFloat(row["Customer Price"] || "0") -
-      parseFloat(row["Developer Proceeds"] || "0")
-    ).toFixed(2),
-  }));
+  const formatted = parsedRecords.map((row) => {
+    const quantity = parseInt(row["Units"], 10);
+    const totalPrice = parseFloat(row["Customer Price"] || "0");
+    const proceeds = parseFloat(row["Developer Proceeds"] || "0");
+
+    return {
+      id: `${row["SKU"]}-${date}`,
+      created_date: "",
+      payment_source: "Apple IAP",
+
+      product_id: row["SKU"] || row["Title"],
+      product_title: row["Title"],
+      quantity,
+      unit_price: quantity > 0 ? totalPrice / quantity : 0,
+      total_price: totalPrice.toFixed(2),
+
+      currency: row["Currency of Proceeds"],
+      country: row["Country Code"],
+      customer_name: "",
+
+      fee: (totalPrice - proceeds).toFixed(2),
+      shipping_cost: 0,
+    };
+  });
 
   const filteredRecords = formatted.filter((record) => record.total_price > 0);
 
