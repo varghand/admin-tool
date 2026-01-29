@@ -332,3 +332,14 @@ export async function getSales(month, year, source) {
 
   return [];
 }
+
+export async function getEventSales(month, year) {
+  var sales = await getSales(month, year, "Event");
+  for (var sale of sales) {
+    if (!sale.total_price && sale.unit_price && sale.quantity) {
+      sale.total_price = sale.unit_price * sale.quantity;
+      sale.fee = sale.fee * sale.quantity;
+    }
+  }
+  return sales;
+}

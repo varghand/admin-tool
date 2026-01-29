@@ -28,7 +28,7 @@ import { getShopifySales } from "./shopify/shopify.js";
 import { countUnlocksById, getUsedCodesByUnlockId } from "./aws/activationCodes.js";
 import { triggerActiveCampaignAutomation } from "./activeCampaign/activeCampaign.js";
 import { getAppleIAPSales } from "./apple/apple.js";
-import { getSales } from "./aws/dynamo.js";
+import { getEventSales } from "./aws/dynamo.js";
 
 const app = express();
 app.use(cors());
@@ -255,7 +255,7 @@ app.get("/sales", verifyCognitoToken, checkAdminAccess, async (req, res) => {
     }
 
     const stripeSales = await getStripeSales(month, year);
-    const eventSales = await getSales(month, year, "Event");
+    const eventSales = await getEventSales(month, year);
     const shopifySales = await getShopifySales(parseInt(month), parseInt(year));
     const appleSales = await getAppleIAPSales(parseInt(year), parseInt(month)+1);
     res.json([...stripeSales, ...shopifySales, ...appleSales, ...eventSales]);
