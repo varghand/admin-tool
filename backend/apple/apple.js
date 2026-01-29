@@ -2,6 +2,14 @@ import jwt from "jsonwebtoken";
 import axios from "axios";
 import zlib from "zlib";
 import { parse } from "csv-parse/sync";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  GetItemCommand,
+} from "@aws-sdk/client-dynamodb";
+
+const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 function generateToken() {
   const now = Math.floor(Date.now() / 1000);
@@ -24,6 +32,27 @@ function generateToken() {
 }
 
 export async function getAppleIAPSales(year, month) {
+  const yearMonthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+  const requestedDate = new Date(Date.UTC(year, month, 1));
+  const now = new Date();
+  const firstDayOfCurrentMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
+
+  if (requestedDate < firstDayOfCurrentMonth) {
+    const existing = await dynamoClient.send(
+      new GetItemCommand({
+        TableName: process.env.SALES_REPORT_TABLE,
+        Key: marshall({ yearMonth: yearMonthKey, salesChannel: "Apple IAP" }),
+      }),
+    );
+
+    if (existing.Item) {
+      return unmarshall(existing.Item).sales;
+    }
+  }
+
   const token = generateToken();
 
   const date = `${year}-${String(month).padStart(2, "0")}`;
@@ -87,6 +116,19 @@ export async function getAppleIAPSales(year, month) {
   });
 
   const filteredRecords = formatted.filter((record) => record.total_price > 0);
+
+  if (requestedDate < firstDayOfCurrentMonth) {
+    await dynamoClient.send(
+      new PutItemCommand({
+        TableName: process.env.SALES_REPORT_TABLE,
+        Item: marshall({
+          yearMonth: yearMonthKey,
+          salesChannel: "Apple IAP",
+          sales: formatted,
+        }),
+      }),
+    );
+  }
 
   return filteredRecords;
 }

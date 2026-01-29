@@ -2,8 +2,37 @@ import axios from "axios";
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE;
 const SHOPIFY_TOKEN = process.env.SHOPIFY_API_TOKEN;
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  GetItemCommand,
+} from "@aws-sdk/client-dynamodb";
+
+const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
 export async function getShopifySales(month, year) {
+  const yearMonthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+  const requestedDate = new Date(Date.UTC(year, month, 1));
+  const now = new Date();
+  const firstDayOfCurrentMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
+
+  if (requestedDate < firstDayOfCurrentMonth) {
+    const existing = await dynamoClient.send(
+      new GetItemCommand({
+        TableName: process.env.SALES_REPORT_TABLE,
+        Key: marshall({ yearMonth: yearMonthKey, salesChannel: "Shopify" }),
+      }),
+    );
+
+    if (existing.Item) {
+      return unmarshall(existing.Item).sales;
+    }
+  }
+
   const from = new Date(Date.UTC(year, month, 1, 0, 0, 0));
   const to = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
 
@@ -53,7 +82,7 @@ export async function getShopifySales(month, year) {
           customer_name:
             `${order.customer?.first_name || ""} ${order.customer?.last_name || ""}`.trim(),
           country: order.customer?.default_address?.country || "",
-          product_id: item.title, 
+          product_id: item.title,
           product_title: item.title,
           quantity: item.quantity,
           unit_price: parseFloat(item.price),
@@ -68,6 +97,19 @@ export async function getShopifySales(month, year) {
           ).toFixed(2),
         });
       }
+    }
+
+    if (requestedDate < firstDayOfCurrentMonth) {
+      await dynamoClient.send(
+        new PutItemCommand({
+          TableName: process.env.SALES_REPORT_TABLE,
+          Item: marshall({
+            yearMonth: yearMonthKey,
+            salesChannel: "Shopify",
+            sales: formatted,
+          }),
+        }),
+      );
     }
 
     return formatted;
