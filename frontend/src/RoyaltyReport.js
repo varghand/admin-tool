@@ -45,6 +45,30 @@ export default function SalesReportPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState("product");
+  const [sortDir, setSortDir] = useState("asc");
+
+  const sortSalesData = (data) => {
+    if (!sortBy) return data;
+
+    const sorted = [...data].sort((a, b) => {
+      const aVal =
+        sortBy === "product"
+          ? (a.product_id || "").toLowerCase()
+          : (a.payment_source || "").toLowerCase();
+
+      const bVal =
+        sortBy === "product"
+          ? (b.product_id || "").toLowerCase()
+          : (b.payment_source || "").toLowerCase();
+
+      return sortDir === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    });
+
+    return sorted;
+  };
 
   const fetchSales = async () => {
     if (!period || !year) return;
@@ -208,8 +232,34 @@ export default function SalesReportPage() {
           <table className="min-w-full text-sm border border-gray-300">
             <thead className="bg-gray-100 text-left">
               <tr>
-                <th className="p-2 border-b">Product</th>
-                <th className="p-2 border-b">Payment Source</th>
+                <th
+                  className="p-2 border-b cursor-pointer select-none"
+                  onClick={() => {
+                    setSortBy("product");
+                    setSortDir(
+                      sortBy === "product" && sortDir === "asc"
+                        ? "desc"
+                        : "asc",
+                    );
+                  }}
+                >
+                  Product{" "}
+                  {sortBy === "product" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                </th>
+                <th
+                  className="p-2 border-b cursor-pointer select-none"
+                  onClick={() => {
+                    setSortBy("payment");
+                    setSortDir(
+                      sortBy === "payment" && sortDir === "asc"
+                        ? "desc"
+                        : "asc",
+                    );
+                  }}
+                >
+                  Payment Source{" "}
+                  {sortBy === "payment" ? (sortDir === "asc" ? "↑" : "↓") : ""}
+                </th>
                 <th className="p-2 border-b">Quantity</th>
                 <th className="p-2 border-b">Total Sales</th>
                 <th className="p-2 border-b">Payment Fees</th>
@@ -220,7 +270,7 @@ export default function SalesReportPage() {
               </tr>
             </thead>
             <tbody>
-              {salesData.map((sale, i) => (
+              {sortSalesData(salesData).map((sale, i) => (
                 <tr key={i} className="border-t">
                   <td className="p-2">{getReadableFormat(sale.product_id)}</td>
                   <td className="p-2">{sale.payment_source}</td>

@@ -24,6 +24,40 @@ export default function SalesReportPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sortKey, setSortKey] = useState("date");
+  const [sortDir, setSortDir] = useState("asc");
+
+  const getSortValue = (sale, key) => {
+    switch (key) {
+      case "index":
+        return 0;
+      case "date":
+        return sale.created_date ? new Date(sale.created_date).getTime() : 0;
+      case "amount":
+        return parseFloat(sale.total_price || 0);
+      case "fee":
+        return parseFloat(sale.fee || 0);
+      default:
+        return (sale[key] || "").toString().toLowerCase();
+    }
+  };
+
+  const sortSales = (data) => {
+    if (!sortKey) return data;
+
+    return [...data].sort((a, b) => {
+      const aVal = getSortValue(a, sortKey);
+      const bVal = getSortValue(b, sortKey);
+
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortDir === "asc" ? aVal - bVal : bVal - aVal;
+      }
+
+      return sortDir === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    });
+  };
 
   const fetchSales = async () => {
     if (!month || !year) return;
@@ -54,14 +88,17 @@ export default function SalesReportPage() {
     setLoading(false);
   };
 
-  const totalAmount = salesData.reduce(
-    (sum, user) => sum + parseFloat(user.total_price || 0),
-    0
-  );
-
-  const totalFees = salesData.reduce(
-    (sum, user) => sum + parseFloat(user.fee || 0),
-    0
+  const sortableHeader = (label, key) => (
+    <th
+      className="p-2 border-b cursor-pointer select-none"
+      onClick={() => {
+        setSortKey(key);
+        setSortDir(sortKey === key && sortDir === "asc" ? "desc" : "asc");
+      }}
+    >
+      {label}
+      {sortKey === key && (sortDir === "asc" ? " ↑" : " ↓")}
+    </th>
   );
 
   return (
@@ -120,29 +157,30 @@ export default function SalesReportPage() {
           <table className="min-w-full text-sm border border-gray-300">
             <thead className="bg-gray-100 text-left">
               <tr>
-                <th className="p-2 border-b">#</th>
-                <th className="p-2 border-b">Date</th>
-                <th className="p-2 border-b">Name</th>
-                <th className="p-2 border-b">Payment Source</th>
-                <th className="p-2 border-b">Amount</th>
-                <th className="p-2 border-b">Fee</th>
-                <th className="p-2 border-b">Country</th>
-                <th className="p-2 border-b">Products</th>
+                {sortableHeader("#", "index")}
+                {sortableHeader("Date", "date")}
+                {sortableHeader("Name", "customer_name")}
+                {sortableHeader("Payment Source", "payment_source")}
+                {sortableHeader("Amount", "amount")}
+                {sortableHeader("Fee", "fee")}
+                {sortableHeader("Country", "country")}
+                {sortableHeader("Product", "product_title")}
               </tr>
             </thead>
             <tbody>
-              {salesData.map((sale, i) => (
+              {sortSales(salesData).map((sale, i) => (
                 <tr key={i} className="border-t">
                   <td className="p-2">{i + 1}</td>
                   <td className="p-2">
-                    {isNaN(new Date(sale.created_date).getTime())
-                      ? ""
-                      : new Date(sale.created_date).toLocaleString()}
+                    {sale.created_date
+                      ? new Date(sale.created_date).toLocaleString()
+                      : ""}
                   </td>
                   <td className="p-2">{sale.customer_name}</td>
                   <td className="p-2">{sale.payment_source}</td>
                   <td className="p-2">
                     {sale.total_price} {sale.currency}
+                    {sale.quantity > 1 && ` (${sale.quantity}×)`}
                   </td>
                   <td className="p-2">
                     -{sale.fee} {sale.currency}
@@ -150,9 +188,7 @@ export default function SalesReportPage() {
                   <td className="p-2">{sale.country}</td>
                   {
                     <td className="p-2">
-                      {sale.products
-                        .map((product) => product.title)
-                        .join(" + ")}
+                      {sale.product_title || sale.product_id}
                     </td>
                   }
                 </tr>
@@ -160,8 +196,6 @@ export default function SalesReportPage() {
               <tr className="font-bold bg-gray-100">
                 <td className="p-2 border-b">{salesData.length}</td>
                 <td colSpan={3} className="p-2 border-b"></td>
-                {/* <td className="p-2 border-b">{totalAmount.toFixed(2)} kr</td>
-                <td className="p-2 border-b">{totalFees.toFixed(2)} kr</td> */}
                 <td colSpan={4} className="p-2 border-b"></td>
               </tr>
             </tbody>
