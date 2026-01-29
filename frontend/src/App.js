@@ -4,7 +4,8 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import UserLookupPage from "./UserLookupPage";
 import UsersByAdventurePage from "./UsersByAdventurePage";
 import SalesReport from "./SalesReport";
-import RoyaltyReportPage from "./RoyaltyReport";
+import RoyaltyReportMonthly from "./RoyaltyReportMonthly";
+import RoyaltyReportHalfYear from "./RoyaltyReportHalfYear";
 import ActivationCodeStatsPage from "./ActivationCodeStatsPage";
 import AdventuresListPage from "./AdventuresPage";
 
@@ -27,8 +28,10 @@ function App() {
         return <SalesReport />;
       case "activation-codes":
         return <ActivationCodeStatsPage />;
-      case "royalty-report":
-        return <RoyaltyReportPage />;
+      case "royalty-report-monthly":
+        return <RoyaltyReportMonthly />;
+      case "royalty-report-halfyear":
+        return <RoyaltyReportHalfYear />;
       case "adventures":
         return <AdventuresListPage />;
       default:
@@ -75,12 +78,21 @@ function App() {
       </button>
 
       <button
-        onClick={() => handleNav("royalty-report")}
+        onClick={() => handleNav("royalty-report-monthly")}
         className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
-          activePage === "royalty-report" ? "bg-brand-purple" : ""
+          activePage === "royalty-report-monthly" ? "bg-brand-purple" : ""
         }`}
       >
-        Royalty Report
+        Royalty Report (Monthly)
+      </button>
+
+      <button
+        onClick={() => handleNav("royalty-report-halfyear")}
+        className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
+          activePage === "royalty-report-halfyear" ? "bg-brand-purple" : ""
+        }`}
+      >
+        Royalty Report (Half-Year)
       </button>
 
       <button
@@ -117,8 +129,19 @@ function App() {
               className="mr-3 p-2"
             >
               {/* simple hamburger */}
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="text-white"
+              >
+                <path
+                  d="M3 6h18M3 12h18M3 18h18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
             <img
@@ -144,8 +167,19 @@ function App() {
                   onClick={() => setMenuOpen(false)}
                   className="p-2"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="text-white"
+                  >
+                    <path
+                      d="M6 6l12 12M18 6L6 18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
                   </svg>
                 </button>
               </div>
