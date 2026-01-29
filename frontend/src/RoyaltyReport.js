@@ -8,11 +8,35 @@ const baseUrl = process.env.REACT_APP_BACKEND_BASE_URL;
 const periods = [
   { label: "January-June", value: "H1" },
   { label: "July-December", value: "H2" },
+  { label: "January", value: "January" },
+  { label: "February", value: "February" },
+  { label: "March", value: "March" },
+  { label: "April", value: "April" },
+  { label: "May", value: "May" },
+  { label: "June", value: "June" },
+  { label: "July", value: "July" },
+  { label: "August", value: "August" },
+  { label: "September", value: "September" },
+  { label: "October", value: "October" },
+  { label: "November", value: "November" },
+  { label: "December", value: "December" },
 ];
 
 const getMonthsForPeriod = (period) => {
-  if (period === "H1") return [0, 1, 2, 3, 4, 5]; 
+  if (period === "H1") return [0, 1, 2, 3, 4, 5];
   if (period === "H2") return [6, 7, 8, 9, 10, 11];
+  if (period === "January") return [0];
+  if (period === "February") return [1];
+  if (period === "March") return [2];
+  if (period === "April") return [3];
+  if (period === "May") return [4];
+  if (period === "June") return [5];
+  if (period === "July") return [6];
+  if (period === "August") return [7];
+  if (period === "September") return [8];
+  if (period === "October") return [9];
+  if (period === "November") return [10];
+  if (period === "December") return [11];
   return [];
 };
 

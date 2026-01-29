@@ -4,8 +4,7 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import UserLookupPage from "./UserLookupPage";
 import UsersByAdventurePage from "./UsersByAdventurePage";
 import SalesReport from "./SalesReport";
-import RoyaltyReportMonthly from "./RoyaltyReportMonthly";
-import RoyaltyReportHalfYear from "./RoyaltyReportHalfYear";
+import RoyaltyReport from "./RoyaltyReport";
 import ActivationCodeStatsPage from "./ActivationCodeStatsPage";
 import AdventuresListPage from "./AdventuresPage";
 
@@ -28,10 +27,8 @@ function App() {
         return <SalesReport />;
       case "activation-codes":
         return <ActivationCodeStatsPage />;
-      case "royalty-report-monthly":
-        return <RoyaltyReportMonthly />;
-      case "royalty-report-halfyear":
-        return <RoyaltyReportHalfYear />;
+      case "royalty-report":
+        return <RoyaltyReport />;
       case "adventures":
         return <AdventuresListPage />;
       default:
@@ -78,21 +75,12 @@ function App() {
       </button>
 
       <button
-        onClick={() => handleNav("royalty-report-monthly")}
+        onClick={() => handleNav("royalty-report")}
         className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
-          activePage === "royalty-report-monthly" ? "bg-brand-purple" : ""
+          activePage === "royalty-report" ? "bg-brand-purple" : ""
         }`}
       >
-        Royalty Report (Monthly)
-      </button>
-
-      <button
-        onClick={() => handleNav("royalty-report-halfyear")}
-        className={`w-full text-left px-3 py-2 rounded hover:bg-brand-purple ${
-          activePage === "royalty-report-halfyear" ? "bg-brand-purple" : ""
-        }`}
-      >
-        Royalty Report (Half-Year)
+        Royalty Report
       </button>
 
       <button
