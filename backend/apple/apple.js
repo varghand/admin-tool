@@ -115,7 +115,7 @@ export async function getAppleIAPSales(year, month) {
     };
   });
 
-  const filteredRecords = formatted.filter((record) => record.total_price > 0);
+  const filteredRecords = formatted.filter((record) => record.unit_price > 0);
 
   if (requestedDate < firstDayOfCurrentMonth) {
     await dynamoClient.send(
